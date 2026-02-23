@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Oficina {
+  id          Int       @id @default(autoincrement())
+  nome        String
+  responsavel String
+  telefone    String
+  endereco    String
+  createdAt   DateTime  @default(now())
+
+  usuarios    Usuario[]
+  clientes    Cliente[]
+  veiculos    Veiculo[]
+  registros   RegistroTecnico[]
+  orcamentos  Orcamento[]
+}
+
+model Usuario {
+  id         Int      @id @default(autoincrement())
+  nome       String
+  email      String   @unique
+  senha      String
+  role       String
+  ativo      Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  oficinaId  Int
+  oficina    Oficina  @relation(fields: [oficinaId], references: [id])
+}
+
+model Cliente {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  telefone  String?
+  createdAt DateTime @default(now())
+
+  oficinaId Int
+  oficina   Oficina  @relation(fields: [oficinaId], references: [id])
+
+  veiculos  Veiculo[]
+}
+
+model Veiculo {
+  id          Int      @id @default(autoincrement())
+  placa       String
+  modelo      String
+  ano         String?
+  motor       String?
+  alimentacao String?
+  createdAt   DateTime @default(now())
+
+  clienteId   Int
+  cliente     Cliente  @relation(fields: [clienteId], references: [id])
+
+  oficinaId   Int
+  oficina     Oficina  @relation(fields: [oficinaId], references: [id])
+
+  registros   RegistroTecnico[]
+  orcamentos  Orcamento[]
+}
+
+model RegistroTecnico {
+  id          Int      @id @default(autoincrement())
+  categoria   String
+  descricao   String
+  pressao     String?
+  gicle       String?
+  combustivel String?
+  observacoes String?
+  createdAt   DateTime @default(now())
+
+  veiculoId   Int
+  veiculo     Veiculo  @relation(fields: [veiculoId], references: [id])
+
+  oficinaId   Int
+  oficina     Oficina  @relation(fields: [oficinaId], references: [id])
+}
+
+model Orcamento {
+  id        Int      @id @default(autoincrement())
+  numero    Int
+  subtotal  Float?
+  total     Float?
+  createdAt DateTime @default(now())
+
+  veiculoId Int
+  veiculo   Veiculo  @relation(fields: [veiculoId], references: [id])
+
+  oficinaId Int
+  oficina   Oficina  @relation(fields: [oficinaId], references: [id])
+
+  itens     OrcamentoItem[]
+}
+
+model OrcamentoItem {
+  id           Int     @id @default(autoincrement())
+  descricao    String
+  qtd          Int
+  precoUnit    Float?
+  valorLinha   Float?
+
+  orcamentoId  Int
+  orcamento    Orcamento @relation(fields: [orcamentoId], references: [id])
+}
