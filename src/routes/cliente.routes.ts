@@ -23,4 +23,9 @@ router.post("/", (req, res) => clienteController.create(req, res));
  */
 router.get("/", (req, res) => clienteController.list(req, res));
 
+// update e delete
+router.put("/:id", (req, res) => clienteController.update(req, res));
+router.delete("/:id", (req, res) => clienteController.delete(req, res));
+
+
 export { router as clienteRoutes };
