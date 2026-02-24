@@ -6,8 +6,8 @@ O CarbuApp é um sistema facilitador para oficinas automotivas de pequeno porte,
 O objetivo é oferecer uma solução simples, de baixo custo e organizada para controle de clientes, veículos, registros técnicos e geração de orçamentos em PDF.
 
 Projeto desenvolvido como parte do :
-# Projeto Integrador do curso de Análise e Desenvolvimento de Sistemas da UNASP 2026/1.
-# Aluno: Thiago Pereira Silva RA: 060242
+**Projeto Integrador do curso de Análise e Desenvolvimento de Sistemas da UNASP 2026/1.**
+**Aluno: Thiago Pereira Silva**
 
 
 # Público-Alvo
@@ -25,22 +25,22 @@ Cliente de referência: **Commenale Motorsports**
 
 # Arquitetura
 
-#  Backend
+**Backend**
 - Node.js
 - Express
 - TypeScript
 - Prisma ORM
 - SQLite
 
-# Autenticação
+**Autenticação**
 - JWT (JSON Web Token)
 
-# Banco de Dados
+**Banco de Dados**
 - SQLite (ambiente de desenvolvimento)
 
 ---
 
-# Estrutura do Projeto
+**Estrutura do Projeto**
 
 src/
 server.ts
@@ -51,7 +51,7 @@ schema.prisma
 seed.ts
 migrations/
 
-# Modelagem do Sistema
+**Modelagem do Sistema**
 
 Entidades principais:
 
@@ -65,13 +65,13 @@ Entidades principais:
 
 # Como rodar o projeto ?
 
-# 1 - Instalar dependências:
+**1 - Instalar dependências:**
 npm install
-# 2 - Rodar servidor:
+**2 - Rodar servidor:**
 npm run dev
-# 3 - Acessaro no navegador:
+**3 - Acessar no navegador Prisma:**
 http://localhost:3333/health
-# Seed Inicial - Popular o banco com dados iniciais:
+**Seed Inicial - Popular o banco com dados iniciais:**
 npm run seed
 
 Login padrão criado pelo seed:
@@ -92,14 +92,14 @@ Login padrão criado pelo seed:
 
 #  Roadmap do Projeto
 
-# Fase 1 (Concluída)
+**Fase 1 (Concluída)**
 - Setup inicial do backend
 - Configuração do Prisma
 - Banco SQLite criado
 - Seed inicial funcionando
 - Versionamento no GitHub
 
-# Próximas Fases
+**Próximas Fases**
 - Implementação de autenticação (JWT)
 - CRUD de Clientes
 - CRUD de Veículos
@@ -112,5 +112,6 @@ Login padrão criado pelo seed:
 
 # Autor
 
-Thiago Pereira Silva  
+**Thiago Pereira Silva  RA: 060242**
+**Turma: GTADSI53B**
 Projeto acadêmico – UNASP
