@@ -5,6 +5,7 @@ async function main() {
   // 1) Cria a oficina (apenas se não existir)
   const oficina = await prisma.oficina.upsert({
     where: { id: 1 },
+    //só cria uma vez, e se rodar de novo, ele não duplica.
     update: {},
     create: {
       nome: "Commenale Motorsports",
@@ -16,7 +17,7 @@ async function main() {
 
   // 2) Cria usuário admin (apenas se não existir)
   const adminEmail = "admin@carbuapp.local";
-  const adminSenha = "admin123"; // alterar dps
+  const adminSenha = "admin123"; // lembrar sempre de alterar dps
 
   const senhaHash = await bcrypt.hash(adminSenha, 10);
 
