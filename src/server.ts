@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { clienteRoutes } from "./routes/cliente.routes";
+import { veiculoRoutes } from "./routes/veiculo.routes";
 
 
 
@@ -19,10 +20,10 @@ app.use(cors());
 // Permite trabalhar com JSON no body
 app.use(express.json());
 
-// Todas rotas que começarem com /auth
-// serão direcionadas para authRoutes
+// ROTAS ---
 app.use("/auth", authRoutes);
 app.use("/clientes", clienteRoutes);
+app.use("/veiculos", veiculoRoutes);
 
 // Rota simples para testar se servidor está rodando
 app.get("/health", (req, res) => {
