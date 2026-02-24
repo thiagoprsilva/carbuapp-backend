@@ -97,6 +97,9 @@ model Orcamento {
   oficina   Oficina  @relation(fields: [oficinaId], references: [id])
 
   itens     OrcamentoItem[]
+
+  @@unique([oficinaId, numero])
+  
 }
 
 model OrcamentoItem {
