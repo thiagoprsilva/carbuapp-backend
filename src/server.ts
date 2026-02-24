@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { clienteRoutes } from "./routes/cliente.routes";
 import { veiculoRoutes } from "./routes/veiculo.routes";
+import { registroTecnicoRoutes } from "./routes/registroTecnico.routes";
 
 
 
@@ -24,6 +25,7 @@ app.use(express.json());
 app.use("/auth", authRoutes);
 app.use("/clientes", clienteRoutes);
 app.use("/veiculos", veiculoRoutes);
+app.use("/registros-tecnicos", registroTecnicoRoutes);
 
 // Rota simples para testar se servidor está rodando
 app.get("/health", (req, res) => {
