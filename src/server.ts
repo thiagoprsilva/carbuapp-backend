@@ -1,6 +1,9 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import { clienteRoutes } from "./routes/cliente.routes";
+
+
 
 // Importa as rotas de autenticação
 import { authRoutes } from "./routes/auth.routes";
@@ -19,6 +22,7 @@ app.use(express.json());
 // Todas rotas que começarem com /auth
 // serão direcionadas para authRoutes
 app.use("/auth", authRoutes);
+app.use("/clientes", clienteRoutes);
 
 // Rota simples para testar se servidor está rodando
 app.get("/health", (req, res) => {

@@ -1,0 +1,26 @@
+import { Router } from "express";
+import { ClienteController } from "../controllers/cliente.controller";
+import { authMiddleware } from "../middlewares/auth.middleware";
+
+const router = Router();
+const clienteController = new ClienteController();
+
+/**
+ * Todas as rotas de cliente precisam de login,
+ * então aplicamos o middleware aqui.
+ */
+router.use(authMiddleware);
+
+/**
+ * POST /clientes
+ * Cria cliente
+ */
+router.post("/", (req, res) => clienteController.create(req, res));
+
+/**
+ * GET /clientes
+ * Lista clientes
+ */
+router.get("/", (req, res) => clienteController.list(req, res));
+
+export { router as clienteRoutes };
