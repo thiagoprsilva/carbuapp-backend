@@ -114,4 +114,4 @@ Login padrão criado pelo seed:
 
 **Thiago Pereira Silva  RA: 060242**
 **Turma: GTADSI53B**
-Projeto acadêmico – UNASP
+Projeto Integrador – UNASP
