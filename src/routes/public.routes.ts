@@ -5,15 +5,28 @@ const router = Router();
 
 /**
  * GET /public/oficinas
- * Endpoint público para o frontend montar o dropdown de escolha de oficina no login.
+ * Endpoint público para listar oficinas antes do login.
+ * Usado pelo frontend para montar dropdown de escolha.
  */
 router.get("/oficinas", async (req, res) => {
-  const oficinas = await prisma.oficina.findMany({
-    select: { id: true, nome: true, responsavel: true },
-    orderBy: { id: "asc" },
-  });
+  try {
+    const oficinas = await prisma.oficina.findMany({
+      select: {
+        id: true,
+        nome: true,
+        responsavel: true,
+      },
+      orderBy: {
+        id: "asc",
+      },
+    });
 
-  return res.json(oficinas);
+    return res.json(oficinas);
+  } catch (error: any) {
+    return res.status(500).json({
+      message: "Erro ao buscar oficinas",
+    });
+  }
 });
 
 export { router as publicRoutes };
