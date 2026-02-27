@@ -70,6 +70,89 @@ export class RegistroTecnicoService {
       },
     });
 
+    
+
     return registros;
   }
+
+
+
+
+
+/**
+ * Atualiza um registro técnico (somente se pertencer à mesma oficina)
+ */
+async update(
+  oficinaId: number,
+  registroId: number,
+  data: {
+    categoria?: string;
+    descricao?: string;
+    pressao?: string;
+    gicle?: string;
+    combustivel?: string;
+    observacoes?: string;
+    veiculoId?: number; // opcional: mover registro para outro veículo
+  }
+) {
+  // 1) Confere se o registro existe e é da oficina
+  const registro = await prisma.registroTecnico.findFirst({
+    where: { id: registroId, oficinaId },
+  });
+
+  if (!registro) {
+    throw new Error("Registro técnico não encontrado ou não pertence à sua oficina.");
+  }
+
+  // 2) Se quiser trocar veiculoId, valida se o veículo é da mesma oficina
+  if (data.veiculoId !== undefined) {
+    const veiculo = await prisma.veiculo.findFirst({
+      where: { id: data.veiculoId, oficinaId },
+    });
+
+    if (!veiculo) {
+      throw new Error("Veículo informado não existe ou não pertence à sua oficina.");
+    }
+  }
+
+  // 3) Atualiza apenas campos enviados
+  const updated = await prisma.registroTecnico.update({
+    where: { id: registroId },
+    data: {
+      ...(data.categoria !== undefined ? { categoria: data.categoria } : {}),
+      ...(data.descricao !== undefined ? { descricao: data.descricao } : {}),
+      ...(data.pressao !== undefined ? { pressao: data.pressao } : {}),
+      ...(data.gicle !== undefined ? { gicle: data.gicle } : {}),
+      ...(data.combustivel !== undefined ? { combustivel: data.combustivel } : {}),
+      ...(data.observacoes !== undefined ? { observacoes: data.observacoes } : {}),
+      ...(data.veiculoId !== undefined ? { veiculoId: data.veiculoId } : {}),
+    },
+  });
+
+  return updated;
+}
+
+
+/**
+ * Deleta um registro técnico se ele for da mesma oficina
+ */
+async delete(oficinaId: number, registroId: number) {
+  const registro = await prisma.registroTecnico.findFirst({
+    where: { id: registroId, oficinaId },
+  });
+
+  if (!registro) {
+    throw new Error("Registro técnico não encontrado ou não pertence à sua oficina.");
+  }
+
+  await prisma.registroTecnico.delete({
+    where: { id: registroId },
+  });
+
+  return { message: "Registro técnico removido com sucesso." };
+}
+
+
+
+
 }
