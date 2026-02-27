@@ -159,8 +159,30 @@ npm run seed
 
 ## Login padrão (Seed)
 
-- Email: `admin@carbuapp.local`
-- Senha: `admin123`
+
+**GET http://localhost:3333/public/oficinas**
+
+Depois faz login:
+
+**POST http://localhost:3333/auth/login**
+
+
+- Body exemplo Commenale:
+
+{
+  "email": "admin@commenale.local",
+  "senha": "admin123",
+  "oficinaId": 1
+}
+
+- Body exemplo Apocalypse:
+
+{
+  "email": "admin@apocalypse.local",
+  "senha": "admin123",
+  "oficinaId": 2
+}
+
 
 ---
 
@@ -171,7 +193,6 @@ npm run seed
 ✔ Regras de negócio aplicadas  
 ✔ Geração de PDF alinhada  
 ✔ Validação por oficina  
-✔ Versionamento no GitHub  
 
 Backend considerado **MVP funcional completo**.
 
@@ -182,7 +203,8 @@ Backend considerado **MVP funcional completo**.
 - Desenvolvimento do Frontend (React + TypeScript)
 - Interface visual
 - Integração com API
-- Fluxo completo para apresentação
+
+Link Frontend: 
 
 ---
 
