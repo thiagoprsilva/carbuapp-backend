@@ -48,7 +48,7 @@ export class ClienteController {
 
  /**
    * PUT /clientes/:id
-   * Atualiza cliente
+   * Atualiza cliente ----- UPDATE
    */
   async update(req: Request, res: Response) {
     try {
