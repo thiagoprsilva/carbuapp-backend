@@ -10,29 +10,41 @@ const authService = new AuthService();
 export class AuthController {
 
   /**
-   * Método chamado quando alguém faz POST /auth/login
+   * POST /auth/login
+   * Agora exige email, senha e oficinaId
    */
   async login(req: Request, res: Response) {
     try {
 
-      // Pega email e senha do body da requisição
-      const { email, senha } = req.body;
+      // Pega dados do body
+      const { email, senha, oficinaId } = req.body;
 
-      // Chama o serviço (regra de negócio)
-      const result = await authService.login(email, senha);
+      // Validação básica
+      if (!email || !senha || !oficinaId) {
+        return res.status(400).json({
+          message: "email, senha e oficinaId são obrigatórios.",
+        });
+      }
 
-      // Retorna resposta 200 com token e dados
+      if (typeof oficinaId !== "number") {
+        return res.status(400).json({
+          message: "oficinaId deve ser number.",
+        });
+      }
+
+      // Chama o serviço passando também a oficina
+      const result = await authService.login(email, senha, oficinaId);
+
       return res.json(result);
 
     } catch (error: any) {
-
-      // Se der erro, retorna status 400
       return res.status(400).json({
         message: error.message,
       });
     }
   }
-    /**
+
+  /**
    * GET /auth/me
    * Rota protegida: depende do middleware preencher req.user
    */
@@ -44,8 +56,11 @@ export class AuthController {
 
       const user = await authService.me(req.user.id);
       return res.json(user);
+
     } catch (error: any) {
-      return res.status(400).json({ message: error.message });
+      return res.status(400).json({
+        message: error.message,
+      });
     }
   }
 }

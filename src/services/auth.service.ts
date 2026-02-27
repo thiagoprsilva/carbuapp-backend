@@ -10,19 +10,26 @@ import jwt from "jsonwebtoken";
 export class AuthService {
   /**
    * Método responsável por autenticar o usuário
-   * Recebe email e senha
-   * Retorna token + dados do usuário
+   * Recebe email, senha e oficinaId (multi-oficina)
+   * Retorna token + dados do usuário + dados básicos da oficina
    */
-  async login(email: string, senha: string) {
-
-    // Busca o usuário pelo email no banco
-    const user = await prisma.usuario.findUnique({
-      where: { email },
+  async login(email: string, senha: string, oficinaId: number) {
+    // Busca o usuário pelo email + oficinaId (e ativo)
+    // Isso garante que o mesmo email (se existir em outra oficina) não conflita
+    const user = await prisma.usuario.findFirst({
+      where: {
+        email,
+        oficinaId,
+        ativo: true,
+      },
+      include: {
+        oficina: true, // traz dados da oficina (útil no front)
+      },
     });
 
     // Se não existir usuário, lança erro
     if (!user) {
-      throw new Error("Usuário não encontrado");
+      throw new Error("Usuário não encontrado para esta oficina");
     }
 
     // Compara senha digitada com a senha criptografada do banco
@@ -50,7 +57,7 @@ export class AuthService {
       }
     );
 
-    // Retorna token + dados básicos do usuário
+    // Retorna token + dados básicos do usuário + oficina
     return {
       token,
       user: {
@@ -58,10 +65,17 @@ export class AuthService {
         nome: user.nome,
         email: user.email,
         role: user.role,
+        oficinaId: user.oficinaId,
+      },
+      oficina: {
+        id: user.oficina.id,
+        nome: user.oficina.nome,
+        responsavel: user.oficina.responsavel,
       },
     };
   }
-    /**
+
+  /**
    * Retorna dados do usuário autenticado.
    * Recebe o "id" já vindo do token (req.user)
    */

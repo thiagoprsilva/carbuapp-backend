@@ -5,7 +5,7 @@ import { clienteRoutes } from "./routes/cliente.routes";
 import { veiculoRoutes } from "./routes/veiculo.routes";
 import { registroTecnicoRoutes } from "./routes/registroTecnico.routes";
 import { orcamentoRoutes } from "./routes/orcamento.routes";
-
+import { publicRoutes } from "./routes/public.routes";
 
 
 // Importa as rotas de autenticação
@@ -28,6 +28,8 @@ app.use("/clientes", clienteRoutes);
 app.use("/veiculos", veiculoRoutes);
 app.use("/registros-tecnicos", registroTecnicoRoutes);
 app.use("/orcamentos", orcamentoRoutes);
+app.use("/public", publicRoutes);
+
 
 // Rota simples para testar se servidor está rodando
 app.get("/health", (req, res) => {

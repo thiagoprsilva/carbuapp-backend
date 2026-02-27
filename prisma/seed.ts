@@ -2,12 +2,20 @@ import bcrypt from "bcrypt";
 import { prisma } from "../src/prisma";
 
 async function main() {
-  // 1) Cria a oficina (apenas se não existir)
-  const oficina = await prisma.oficina.upsert({
+  // ====== OFICINAS ======
+  // Criado 2 oficinas fixas: Commenale Motorsports e Apocalypse Custom
+  // upsert para não duplicar ao rodar o seed mais de uma vez.
+
+  const commenale = await prisma.oficina.upsert({
     where: { id: 1 },
-    //só cria uma vez, e se rodar de novo, ele não duplica.
-    update: {},
+    update: {
+      nome: "Commenale Motorsports",
+      responsavel: "Felipe Commenale",
+      telefone: "11940730035",
+      endereco: "Rua Joaquim das Neves Corticeiro 49",
+    },
     create: {
+      id: 1,
       nome: "Commenale Motorsports",
       responsavel: "Felipe Commenale",
       telefone: "11940730035",
@@ -15,28 +23,76 @@ async function main() {
     },
   });
 
-  // 2) Cria usuário admin (apenas se não existir)
-  const adminEmail = "admin@carbuapp.local";
-  const adminSenha = "admin123"; // lembrar sempre de alterar dps
-
-  const senhaHash = await bcrypt.hash(adminSenha, 10);
-
-  await prisma.usuario.upsert({
-    where: { email: adminEmail },
-    update: {},
+  const apocalypse = await prisma.oficina.upsert({
+    where: { id: 2 },
+    update: {
+      nome: "Apocalypse Custom",
+      responsavel: "Betão",
+      telefone: "11949310848",
+      endereco: "Rua Anhaduí Mirim 91",
+    },
     create: {
-      nome: "Admin (Felipe)",
-      email: adminEmail,
-      senha: senhaHash,
-      role: "ADMIN",
-      ativo: true,
-      oficinaId: oficina.id,
+      id: 2,
+      nome: "Apocalypse Custom",
+      responsavel: "Betão",
+      telefone: "11949310848",
+      endereco: "Rua Anhaduí Mirim 91",
     },
   });
 
-  console.log("✅ Seed concluído!");
-  console.log(`Oficina: ${oficina.nome}`);
-  console.log(`Admin: ${adminEmail} / ${adminSenha}`);
+  // ====== USUÁRIOS ADMINS ======
+  // Cada oficina terá seu próprio admin, com login separado por oficina.
+  // Por enquanto por motivo de testes ambos estão com a mesma senha
+  const senhaPadrao = "admin123";
+  const senhaHash = await bcrypt.hash(senhaPadrao, 10);
+
+  // Admin Commenale
+  const adminCommenaleEmail = "admin@commenale.local";
+  await prisma.usuario.upsert({
+    where: { email: adminCommenaleEmail },
+    update: {
+      nome: "Admin (Felipe)",
+      senha: senhaHash,
+      role: "ADMIN",
+      ativo: true,
+      oficinaId: commenale.id,
+    },
+    create: {
+      nome: "Admin (Felipe)",
+      email: adminCommenaleEmail,
+      senha: senhaHash,
+      role: "ADMIN",
+      ativo: true,
+      oficinaId: commenale.id,
+    },
+  });
+
+  // Admin Apocalypse
+  const adminApocalypseEmail = "admin@apocalypse.local";
+  await prisma.usuario.upsert({
+    where: { email: adminApocalypseEmail },
+    update: {
+      nome: "Admin (Betão)",
+      senha: senhaHash,
+      role: "ADMIN",
+      ativo: true,
+      oficinaId: apocalypse.id,
+    },
+    create: {
+      nome: "Admin (Betão)",
+      email: adminApocalypseEmail,
+      senha: senhaHash,
+      role: "ADMIN",
+      ativo: true,
+      oficinaId: apocalypse.id,
+    },
+  });
+
+  console.log("Seed concluído!");
+  console.log(`Oficinas: 1) ${commenale.nome} | 2) ${apocalypse.nome}`);
+  console.log("Admins criados:");
+  console.log(`- ${adminCommenaleEmail} / ${senhaPadrao} (Oficina 1)`);
+  console.log(`- ${adminApocalypseEmail} / ${senhaPadrao} (Oficina 2)`);
 }
 
 main()

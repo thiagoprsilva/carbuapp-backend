@@ -1,117 +1,198 @@
-# carbuapp-backend
-# CarbuApp - Commenale Motorsports
-
-O CarbuApp é um sistema facilitador para oficinas automotivas de pequeno porte, feito para ajudar preparadores iniciantes e oficinas de pequeno porte.
-
-O objetivo é oferecer uma solução simples, de baixo custo e organizada para controle de clientes, veículos, registros técnicos e geração de orçamentos em PDF.
-
-Projeto desenvolvido como parte do :
-**Projeto Integrador do curso de Análise e Desenvolvimento de Sistemas da UNASP 2026/1.**
-**Aluno: Thiago Pereira Silva**
-
-
-# Público-Alvo
-
-Oficinas automotivas de pequeno porte, especialmente para mecânicos que ainda não trabalham com nenhum sistema, o CarbuApp atende:
-
-- Carros Originais
-- Projetos turbo
-- Projetos stage
-- Preparações personalizadas
-
-Cliente de referência: **Commenale Motorsports**
+# CarbuApp – Backend  
+### Sistema para Oficinas Automotivas  
+**Projeto Integrador – UNASP 2026/1**
 
 ---
 
-# Arquitetura
+## Sobre o Projeto
+O **CarbuApp** é um sistema de gestão para oficinas automotivas de pequeno porte, desenvolvido com foco em preparadores iniciantes e oficinas que ainda não utiliza sistema algum.
 
-**Backend**
-- Node.js
-- Express
-- TypeScript
-- Prisma ORM
-- SQLite
+O objetivo é oferecer uma solução:
 
-**Autenticação**
-- JWT (JSON Web Token)
+- Simples  
+- De baixo custo  
+- Organizada  
+- Voltada para controle técnico de veículos  
+- Com geração automática de orçamentos em PDF  
 
-**Banco de Dados**
-- SQLite (ambiente de desenvolvimento)
+Cliente de referência: **Commenale Motorsports**, **Apocalypse Custom**
 
 ---
 
-**Estrutura do Projeto**
+## Público-Alvo
+
+Oficinas automotivas de pequeno porte, especialmente:
+
+- Mecânicos que ainda trabalham apenas com papel
+- Mecânicos iniciantes
+- Oficinas no geral que trabalham em:
+  - Carros originais
+  - Preparações personalizadas
+  - Funilária e Mecânica no Geral
+
+---
+
+# Arquitetura do Backend
+
+## Tecnologias Utilizadas
+
+- **Node.js**
+- **Express**
+- **TypeScript**
+- **Prisma ORM**
+- **SQLite**
+- **JWT (JSON Web Token)**
+
+---
+
+## Autenticação
+
+O sistema utiliza **JSON Web Token (JWT)** para:
+
+- Controle de sessão
+- Proteção de rotas
+- Isolamento por oficina (multi-oficina)
+
+Todas as rotas protegidas exigem:
+Authorization: Bearer <token>
+
+---
+
+# Modelagem do Sistema
+
+## Entidades principais:
+
+- Oficina  
+- Usuário  
+- Cliente  
+- Veículo  
+- Registro Técnico  
+- Orçamento  
+- Itens de Orçamento  
+
+---
+
+# Funcionalidades Implementadas
+
+## Autenticação
+- Login com JWT
+- Proteção de rotas
+- Validação por oficina
+
+## CRUD Completo
+
+### Clientes
+- Criar
+- Listar
+- Atualizar
+- Deletar (bloqueia se houver veículos vinculados)
+
+### Veículos
+- Criar
+- Listar
+- Atualizar
+- Deletar (bloqueia se houver registros técnicos ou orçamentos)
+
+### Registros Técnicos
+- Criar
+- Listar
+- Atualizar
+- Deletar
+
+### Orçamentos
+- Criar com múltiplos itens
+- Listar
+- Atualizar (recalcula subtotal e total automaticamente)
+- Deletar (remove itens em transação)
+- Gerar PDF profissional alinhado
+
+---
+
+# Regras de Negócio Implementadas
+
+- Um usuário só pode acessar dados da sua própria oficina
+- Não é possível deletar:
+  - Cliente com veículos vinculados
+  - Veículo com registros técnicos ou orçamentos
+- Orçamento recalcula subtotal e total automaticamente no backend
+- Remoção de orçamento ocorre em transação (itens + orçamento)
+- Todas as rotas protegidas exigem token JWT válido
+
+---
+
+# Estrutura do Projeto
 
 src/
 server.ts
 prisma.ts
+controllers/
+services/
+routes/
+middlewares/
 
 prisma/
 schema.prisma
 seed.ts
 migrations/
 
-**Modelagem do Sistema**
+Arquitetura baseada em separação de responsabilidades:
 
-Entidades principais:
-
-- Oficina
-- Usuário
-- Cliente
-- Veículo
-- Registro Técnico
-- Orçamento
-- Itens de Orçamento
-
-# Como rodar o projeto ?
-
-**1 - Instalar dependências:**
-npm install
-**2 - Rodar servidor:**
-npm run dev
-**3 - Acessar no navegador Prisma:**
-http://localhost:3333/health
-**Seed Inicial - Popular o banco com dados iniciais:**
-npm run seed
-
-Login padrão criado pelo seed:
-
-- Email: admin@carbuapp.local
-- Senha: admin123
-
-
-# Fluxo de Desenvolvimento
-
-1. Abrir o projeto no VS Code
-2. Rodar `npm run dev`
-3. Implementar funcionalidades
-4. Testar via Thunder Client
-5. Commitar alterações com Git
+- **Controller** Requisição HTTP
+- **Service** Regras de negócio
+- **Prisma** Acesso ao banco
+- **Middleware** Autenticação e validações
 
 ---
 
-#  Roadmap do Projeto
+# Como Rodar o Projeto
 
-**Fase 1 (Concluída)**
-- Setup inicial do backend
-- Configuração do Prisma
-- Banco SQLite criado
-- Seed inicial funcionando
-- Versionamento no GitHub
+## 1 - Instalar dependências
+npm install
+## 2 - Rodar servidor
+npm run dev
+## 3 - Checar Funcionamento (Health Check)
+http://localhost:3333/health
+## 4 - Popular banco com dados iniciais
+npm run seed
 
-**Próximas Fases**
-- Implementação de autenticação (JWT)
-- CRUD de Clientes
-- CRUD de Veículos
-- Registro Técnico
-- Sistema de Orçamento
-- Geração de PDF
-- Integração com Frontend React
+---
+
+## Login padrão (Seed)
+
+- Email: `admin@carbuapp.local`
+- Senha: `admin123`
+
+---
+
+# Status Atual do Backend
+
+✔ Autenticação implementada  
+✔ CRUD completo de todas entidades  
+✔ Regras de negócio aplicadas  
+✔ Geração de PDF alinhada  
+✔ Validação por oficina  
+✔ Versionamento no GitHub  
+
+Backend considerado **MVP funcional completo**.
+
+---
+
+# Próxima Etapa
+
+- Desenvolvimento do Frontend (React + TypeScript)
+- Interface visual
+- Integração com API
+- Fluxo completo para apresentação
+
+---
+
+# Informações Acadêmicas
+
+**Aluno:** Thiago Pereira Silva  
+**RA:** 060242  
+**Turma:** GTADSI53B  
+**Curso:** Análise e Desenvolvimento de Sistemas  
+**Instituição:** UNASP  
 
 
-
-# Autor
-
-**Thiago Pereira Silva  RA: 060242**
-**Turma: GTADSI53B**
-Projeto Integrador – UNASP
+Projeto Integrador – 2026/1
