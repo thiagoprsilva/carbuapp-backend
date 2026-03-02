@@ -18,15 +18,16 @@ export class RegistroTecnicoController {
     try {
       const oficinaId = req.user!.oficinaId;
 
-      const { veiculoId, categoria, descricao, dataServico, observacoes } = req.body;
+      const { veiculoId, categoria, descricao, dataServico, observacoes, orcamentoId } = req.body;
 
       const registro = await service.create(oficinaId, {
-        veiculoId: Number(veiculoId),
-        categoria,
-        descricao,
-        dataServico,
-        observacoes,
-      });
+          veiculoId: Number(veiculoId),
+          categoria,
+          descricao,
+          dataServico,
+          observacoes,
+          orcamentoId: orcamentoId !== undefined ? Number(orcamentoId) : undefined,
+});
 
       return res.status(201).json(registro);
     } catch (error: any) {

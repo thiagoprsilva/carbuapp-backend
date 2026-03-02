@@ -37,39 +37,60 @@ export class RegistroTecnicoService {
   /**
    * Cria registro técnico
    */
-  async create(oficinaId: number, data: CreateRegistroDTO) {
-    // validações simples
-    if (!data.veiculoId) throw new Error("veiculoId é obrigatório.");
-    if (!data.categoria?.trim()) throw new Error("categoria é obrigatória.");
-    if (!data.descricao?.trim()) throw new Error("descricao é obrigatória.");
-    if (!data.dataServico?.trim()) throw new Error("dataServico é obrigatória.");
-
-    // garante que o veículo pertence à mesma oficina
-    const veiculo = await prisma.veiculo.findFirst({
-      where: { id: data.veiculoId, oficinaId },
-      select: { id: true },
-    });
-
-    if (!veiculo) throw new Error("Veículo não encontrado ou não pertence à sua oficina.");
-
-    return prisma.registroTecnico.create({
-      data: {
-        oficinaId,
-        veiculoId: data.veiculoId,
-        categoria: data.categoria.trim(),
-        descricao: data.descricao.trim(),
-        dataServico: new Date(data.dataServico),
-        observacoes: data.observacoes?.trim() || null,
-      },
-      include: {
-        veiculo: {
-          include: {
-            cliente: { select: { id: true, nome: true } },
-          },
-        },
-      },
-    });
+async create(
+  oficinaId: number,
+  data: {
+    veiculoId: number;
+    categoria: string;
+    descricao: string;
+    dataServico: string;
+    observacoes?: string | null;
+    orcamentoId?: number;
   }
+) {
+  if (!data.veiculoId) throw new Error("veiculoId é obrigatório.");
+  if (!data.categoria?.trim()) throw new Error("categoria é obrigatória.");
+  if (!data.descricao?.trim()) throw new Error("descricao é obrigatória.");
+  if (!data.dataServico?.trim()) throw new Error("dataServico é obrigatória.");
+
+  // 1) garante veículo da oficina
+  const veiculo = await prisma.veiculo.findFirst({
+    where: { id: data.veiculoId, oficinaId },
+    select: { id: true },
+  });
+  if (!veiculo) throw new Error("Veículo não encontrado ou não pertence à sua oficina.");
+
+  // 2) se veio orcamentoId, valida
+  if (data.orcamentoId !== undefined && data.orcamentoId !== null) {
+    const orc = await prisma.orcamento.findFirst({
+      where: { id: data.orcamentoId, oficinaId },
+      select: { id: true, veiculoId: true },
+    });
+
+    if (!orc) throw new Error("Orçamento não encontrado ou não pertence à sua oficina.");
+
+    if (orc.veiculoId !== data.veiculoId) {
+      throw new Error("Este orçamento não pertence ao veículo informado.");
+    }
+  }
+
+  // 3) cria registro
+  return prisma.registroTecnico.create({
+    data: {
+      oficinaId,
+      veiculoId: data.veiculoId,
+      categoria: data.categoria.trim(),
+      descricao: data.descricao.trim(),
+      dataServico: new Date(data.dataServico),
+      observacoes: data.observacoes?.trim() || null,
+      orcamentoId: data.orcamentoId ?? null,
+    },
+    include: {
+      veiculo: { include: { cliente: { select: { id: true, nome: true } } } },
+      orcamento: { select: { id: true, numero: true } }, // ✅ útil pra front mostrar link
+    },
+  });
+}
 
   /**
    * Atualiza registro técnico

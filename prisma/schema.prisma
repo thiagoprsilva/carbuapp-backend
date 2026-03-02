@@ -79,6 +79,11 @@ model RegistroTecnico {
 
   oficina     Oficina  @relation(fields: [oficinaId], references: [id])
   oficinaId   Int
+
+// vinculo opcional com orçamento
+  orcamentoId Int?
+  orcamento Orcamento? @relation(fields: [orcamentoId], references: [id])
+  
 }
 model Orcamento {
   id        Int      @id @default(autoincrement())
@@ -96,7 +101,11 @@ model Orcamento {
   itens     OrcamentoItem[]
 
   @@unique([oficinaId, numero])
-  
+
+
+  // lista de registros gerados a partir dele
+  registrosTecnicos RegistroTecnico[]
+
 }
 
 model OrcamentoItem {
