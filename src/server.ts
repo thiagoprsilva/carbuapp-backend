@@ -26,7 +26,7 @@ app.use(express.json());
 app.use("/auth", authRoutes);
 app.use("/clientes", clienteRoutes);
 app.use("/veiculos", veiculoRoutes);
-app.use("/registros-tecnicos", registroTecnicoRoutes);
+app.use("/registroTecnico", registroTecnicoRoutes);
 app.use("/orcamentos", orcamentoRoutes);
 app.use("/public", publicRoutes);
 
