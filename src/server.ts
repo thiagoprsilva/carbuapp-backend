@@ -27,7 +27,7 @@ app.use("/auth", authRoutes);
 app.use("/clientes", clienteRoutes);
 app.use("/veiculos", veiculoRoutes);
 app.use("/registroTecnico", registroTecnicoRoutes);
-app.use("/orcamentos", orcamentoRoutes);
+app.use("/orcamento", orcamentoRoutes);
 app.use("/public", publicRoutes);
 
 
@@ -42,4 +42,4 @@ const PORT = Number(process.env.PORT) || 3333;
 // Sobe o servidor
 app.listen(PORT, () => {
   console.log(`CarbuApp rodando em http://localhost:${PORT}`);
-});
+}); 

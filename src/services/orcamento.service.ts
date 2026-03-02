@@ -36,7 +36,7 @@ export class OrcamentoService {
       select: { numero: true },
     });
 
-    const proximoNumero = ultimo ? ultimo.numero + 1 : 0; // começa do 0
+    const proximoNumero = ultimo ? ultimo.numero + 1 : 1; // começa do 1
 
     // 3) Calcula subtotal/total com base nos itens
     const itensCalculados = data.itens.map((item) => {
