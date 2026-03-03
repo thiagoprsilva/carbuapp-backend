@@ -104,4 +104,16 @@ export class ClienteController {
       return res.status(400).json({ message: error.message });
     }
   }
+  
+  async show(req: Request, res: Response) {
+  try {
+    const oficinaId = req.user!.oficinaId;
+    const id = Number(req.params.id);
+
+    const cliente = await clienteService.findById(oficinaId, id);
+    return res.json(cliente);
+  } catch (error: any) {
+    return res.status(400).json({ message: error.message });
+  }
+}
 }

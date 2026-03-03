@@ -14,6 +14,9 @@ router.post("/", (req, res) => veiculoController.create(req, res));
 // GET /veiculos (opcional: ?clienteId=1)
 router.get("/", (req, res) => veiculoController.list(req, res));
 
+
+router.get("/:id", authMiddleware, (req, res) => veiculoController.show(req, res));
+
 // PUT /veiculos (atualiza/update)
 router.put("/:id", (req, res) => veiculoController.update(req, res));
 

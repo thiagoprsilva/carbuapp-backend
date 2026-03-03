@@ -29,6 +29,8 @@ export class ClienteService {
 
     return clientes;
   }
+
+  
   /**
    * Atualiza um cliente, mas somente se ele pertencer à mesma oficina
    */
@@ -90,5 +92,26 @@ async delete(oficinaId: number, clienteId: number) {
 
   return { message: "Cliente removido com sucesso." };
 }
+
+
+async findById(oficinaId: number, clienteId: number) {
+  const cliente = await prisma.cliente.findFirst({
+    where: { id: clienteId, oficinaId },
+    select: {
+      id: true,
+      nome: true,
+      telefone: true,
+      createdAt: true,
+    },
+  });
+
+  if (!cliente) {
+    throw new Error("Cliente não encontrado.");
+  }
+
+  return cliente;
+}
+
+
 
 }

@@ -131,6 +131,16 @@ async delete(req: Request, res: Response) {
   }
 }
 
+async show(req: Request, res: Response) {
+  try {
+    const oficinaId = req.user!.oficinaId;
+    const id = Number(req.params.id);
 
+    const veiculo = await veiculoService.findById(oficinaId, id);
+    return res.json(veiculo);
+  } catch (error: any) {
+    return res.status(400).json({ message: error.message });
+  }
+}
 
 }

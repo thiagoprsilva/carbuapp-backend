@@ -159,7 +159,20 @@ async delete(oficinaId: number, veiculoId: number) {
   return { message: "Veículo removido com sucesso." };
 }
 
+async findById(oficinaId: number, veiculoId: number) {
+  const veiculo = await prisma.veiculo.findFirst({
+    where: { id: veiculoId, oficinaId },
+    include: {
+      cliente: { select: { id: true, nome: true, telefone: true } },
+    },
+  });
 
+  if (!veiculo) {
+    throw new Error("Veículo não encontrado.");
+  }
+
+  return veiculo;
+}
 
 
   
