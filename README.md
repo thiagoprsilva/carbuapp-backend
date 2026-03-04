@@ -198,13 +198,35 @@ Backend considerado **MVP funcional completo**.
 
 ---
 
-# Próxima Etapa
+# Frontend do Projeto
 
-- Desenvolvimento do Frontend (React + TypeScript)
-- Interface visual
-- Integração com API
+O frontend do sistema foi desenvolvido utilizando:
 
-Link Frontend: 
+- React
+- TypeScript
+- Vite
+- React Router
+- Axios
+
+Ele é responsável pela interface visual do sistema, incluindo:
+
+- Dashboard
+- Gestão de clientes
+- Gestão de veículos
+- Registros técnicos
+- Sistema de orçamentos
+- Geração de PDF
+
+Link do repositório Frontend:
+https://github.com/thiagoprsilva/carbuapp-frontend
+
+# Integração do Frontend
+
+O backend foi desenvolvido como uma **API REST**, consumida pelo frontend do React.
+HTTP + JSON
+Com autenticação JWT (JSON Web Token)
+Todas as rotas exigem Authorization: Bearer <token>
+
 
 ---
 
