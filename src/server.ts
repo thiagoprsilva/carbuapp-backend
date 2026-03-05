@@ -7,6 +7,7 @@ import { registroTecnicoRoutes } from "./routes/registroTecnico.routes";
 import { orcamentoRoutes } from "./routes/orcamento.routes";
 import { publicRoutes } from "./routes/public.routes";
 import dashboardRoutes from "./routes/dashboard.routes";
+import { searchRoutes } from "./routes/search.routes";
 
 
 
@@ -32,6 +33,7 @@ app.use("/registroTecnico", registroTecnicoRoutes);
 app.use("/orcamento", orcamentoRoutes);
 app.use("/public", publicRoutes);
 app.use("/dashboard", dashboardRoutes);
+app.use("/api", searchRoutes);
 
 // Rota simples para testar se servidor está rodando
 app.get("/health", (req, res) => {
