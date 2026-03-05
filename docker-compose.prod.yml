@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:16
+    container_name: carbuapp-postgres-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: carbuapp
+      POSTGRES_PASSWORD: carbuapp123
+      POSTGRES_DB: carbuapp
+    volumes:
+      - carbuapp_pgdata:/var/lib/postgresql/data
+
+  api:
+    build: .
+    container_name: carbuapp-api-prod
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "3333:3333"
+    env_file:
+      - .env
+
+volumes:
+  carbuapp_pgdata:
+

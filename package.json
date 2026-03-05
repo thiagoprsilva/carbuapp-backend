@@ -2,11 +2,19 @@
   "name": "carbuapp-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/server.js",
+  "type": "commonjs",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "migrate:deploy": "prisma migrate deploy",
+    "migrate:dev": "prisma migrate dev",
+    "generate": "prisma generate",
+    "postinstall": "prisma generate",
     "seed": "tsx prisma/seed.ts"
-  },
+  
+},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/thiagoprsilva/carbuapp-backend.git"

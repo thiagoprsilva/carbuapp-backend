@@ -1,10 +1,10 @@
 import bcrypt from "bcrypt";
-import { prisma } from "../src/prisma";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 async function main() {
   // ====== OFICINAS ======
-  // Criado 2 oficinas fixas: Commenale Motorsports e Apocalypse Custom
-  // upsert para não duplicar ao rodar o seed mais de uma vez.
 
   const commenale = await prisma.oficina.upsert({
     where: { id: 1 },
@@ -41,13 +41,12 @@ async function main() {
   });
 
   // ====== USUÁRIOS ADMINS ======
-  // Cada oficina terá seu próprio admin, com login separado por oficina.
-  // Por enquanto por motivo de testes ambos estão com a mesma senha
+
   const senhaPadrao = "admin123";
   const senhaHash = await bcrypt.hash(senhaPadrao, 10);
 
-  // Admin Commenale
   const adminCommenaleEmail = "admin@commenale.local";
+
   await prisma.usuario.upsert({
     where: { email: adminCommenaleEmail },
     update: {
@@ -67,8 +66,8 @@ async function main() {
     },
   });
 
-  // Admin Apocalypse
   const adminApocalypseEmail = "admin@apocalypse.local";
+
   await prisma.usuario.upsert({
     where: { email: adminApocalypseEmail },
     update: {
@@ -88,10 +87,7 @@ async function main() {
     },
   });
 
-  // ====== CLIENTES, VEÍCULOS E ORÇAMENTOS ======
-  // Serão criados 15 clientes, 15 veículos e 15 orçamentos de exemplo,
-  // distribuídos entre as duas oficinas. Cada cliente terá 1 veículo
-  // e 1 orçamento associado a esse veículo.
+  // ====== CLIENTES / VEÍCULOS / ORÇAMENTOS ======
 
   const nomesClientes = [
     "João da Silva",
@@ -115,7 +111,6 @@ async function main() {
     const indiceHumano = i + 1;
     const oficinaBase = i % 2 === 0 ? commenale : apocalypse;
 
-    // Cliente
     const cliente = await prisma.cliente.upsert({
       where: { id: indiceHumano },
       update: {
@@ -131,9 +126,9 @@ async function main() {
       },
     });
 
-    // Veículo do cliente
     const placa = `ABC${(100 + i).toString().slice(1)}`;
     const ano = (2010 + (i % 10)).toString();
+
     const modelos = [
       "Gol 1.6",
       "Civic 2.0",
@@ -154,7 +149,8 @@ async function main() {
         modelo: modelos[i % modelos.length],
         ano,
         motor: i % 2 === 0 ? "2.0" : "1.6",
-        alimentacao: i % 3 === 0 ? "Gasolina" : i % 3 === 1 ? "Etanol" : "Flex",
+        alimentacao:
+          i % 3 === 0 ? "Gasolina" : i % 3 === 1 ? "Etanol" : "Flex",
         clienteId: cliente.id,
         oficinaId: oficinaBase.id,
       },
@@ -164,16 +160,16 @@ async function main() {
         modelo: modelos[i % modelos.length],
         ano,
         motor: i % 2 === 0 ? "2.0" : "1.6",
-        alimentacao: i % 3 === 0 ? "Gasolina" : i % 3 === 1 ? "Etanol" : "Flex",
+        alimentacao:
+          i % 3 === 0 ? "Gasolina" : i % 3 === 1 ? "Etanol" : "Flex",
         clienteId: cliente.id,
         oficinaId: oficinaBase.id,
       },
     });
 
-    // Orçamento para ser enviado ao registro técnico
-    const numeroOrcamento = indiceHumano; // único por oficina
+    const numeroOrcamento = indiceHumano;
     const subtotal = 1500 + i * 50;
-    const total = subtotal; // sem descontos/ acréscimos por enquanto
+    const total = subtotal;
 
     const orcamento = await prisma.orcamento.upsert({
       where: { id: indiceHumano },
@@ -211,7 +207,7 @@ async function main() {
     });
 
     console.log(
-      `Seed registro base: Cliente #${cliente.id} (${cliente.nome}) | Veículo #${veiculo.id} (${veiculo.placa}) | Orçamento #${orcamento.id} (Oficina ${oficinaBase.id})`,
+      `Seed registro base: Cliente #${cliente.id} (${cliente.nome}) | Veículo #${veiculo.id} (${veiculo.placa}) | Orçamento #${orcamento.id} (Oficina ${oficinaBase.id})`
     );
   }
 
