@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16
+    container_name: carbuapp-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: carbuapp
+      POSTGRES_PASSWORD: carbuapp123
+      POSTGRES_DB: carbuapp
+    ports:
+      - "5432:5432"
+    volumes:
+      - carbuapp_pgdata:/var/lib/postgresql/data
+
+volumes:
+  carbuapp_pgdata:
