@@ -240,3 +240,5 @@ Todas as rotas exigem Authorization: Bearer <token>
 
 
 Projeto Integrador – 2026/1
+
+
