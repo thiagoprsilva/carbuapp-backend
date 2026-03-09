@@ -5,7 +5,7 @@
 ---
 
 ## Sobre o Projeto
-O **CarbuApp** é um sistema de gestão para oficinas automotivas de pequeno porte, desenvolvido com foco em preparadores iniciantes e oficinas que ainda não utiliza sistema algum.
+O **CarbuApp** é um sistema de gestão em desenvolvimento para oficinas automotivas de pequeno porte, com foco em mecânicos iniciantes e oficinas que ainda não utiliza sistema algum.
 
 O objetivo é oferecer uma solução:
 
@@ -15,7 +15,7 @@ O objetivo é oferecer uma solução:
 - Voltada para controle técnico de veículos  
 - Com geração automática de orçamentos em PDF  
 
-Cliente de referência: **Commenale Motorsports**, **Apocalypse Custom**
+Clientes de referência: **Commenale Motorsports**, **Apocalypse Custom**
 
 ---
 
@@ -40,8 +40,10 @@ Oficinas automotivas de pequeno porte, especialmente:
 - **Express**
 - **TypeScript**
 - **Prisma ORM**
-- **SQLite**
+- **SQLite (utilizado no desenvolvimento)**
+- **PostgreSQL (produção - versão final)**
 - **JWT (JSON Web Token)**
+- **Docker**
 
 ---
 
@@ -49,9 +51,9 @@ Oficinas automotivas de pequeno porte, especialmente:
 
 O sistema utiliza **JSON Web Token (JWT)** para:
 
-- Controle de sessão
+- Login autenticado
 - Proteção de rotas
-- Isolamento por oficina (multi-oficina)
+- Isolamento de dados por oficina
 
 Todas as rotas protegidas exigem:
 Authorization: Bearer <token>
@@ -65,11 +67,13 @@ Authorization: Bearer <token>
 - Oficina  
 - Usuário  
 - Cliente  
-- Veículo  
+- DetalheCliente
+- Veículo 
+- DetalheVeiculo
 - Registro Técnico  
 - Orçamento  
 - Itens de Orçamento  
-
+O sistema suporta multi-oficina, garantindo que cada usuário tenha acesso apenas aos dados da sua própria oficina.
 ---
 
 # Funcionalidades Implementadas
@@ -102,9 +106,9 @@ Authorization: Bearer <token>
 ### Orçamentos
 - Criar com múltiplos itens
 - Listar
-- Atualizar (recalcula subtotal e total automaticamente)
-- Deletar (remove itens em transação)
-- Gerar PDF profissional alinhado
+- Atualizar (calcula subtotal e total automaticamente)
+- Deletar 
+- Gerar PDF profissional (personalizado para cada oficina)
 
 ---
 
@@ -114,7 +118,7 @@ Authorization: Bearer <token>
 - Não é possível deletar:
   - Cliente com veículos vinculados
   - Veículo com registros técnicos ou orçamentos
-- Orçamento recalcula subtotal e total automaticamente no backend
+- Orçamento calcula subtotal e total automaticamente no backend
 - Remoção de orçamento ocorre em transação (itens + orçamento)
 - Todas as rotas protegidas exigem token JWT válido
 
@@ -137,10 +141,10 @@ migrations/
 
 Arquitetura baseada em separação de responsabilidades:
 
-- **Controller** Requisição HTTP
-- **Service** Regras de negócio
+- **Controllers** Requisição HTTP
+- **Services** Regras de negócio
 - **Prisma** Acesso ao banco
-- **Middleware** Autenticação e validações
+- **Middlewares** Autenticação e validações
 
 ---
 
@@ -160,11 +164,11 @@ npm run seed
 ## Login padrão (Seed)
 
 
-**GET http://localhost:3333/public/oficinas**
+**GET /public/oficinas**
 
 Depois faz login:
 
-**POST http://localhost:3333/auth/login**
+**POST /auth/login**
 
 
 - Body exemplo Commenale:
@@ -186,15 +190,45 @@ Depois faz login:
 
 ---
 
+# Infraestrutura de Produção
+O Sistema está atualmente em produção.
+
+**URL Frontend:https://carbuapp.com.br**
+**URL Backend API:https://api.carbuapp.com.br**
+
+Arquitetura de Deploy
+
+Frontend (React)
+        │
+        ▼
+     Nginx
+        │
+        ▼
+Backend API (Node.js)
+        │
+        ▼
+   PostgreSQL
+
+## Infraestrutura
+
+- VPS Linux
+- Docker
+- Nginx Reverse Proxy
+- PostgreSQL (container)
+- SSL via Let's Encrypt
+- Deploy automático via GitHub Actions
+
 # Status Atual do Backend
 
 ✔ Autenticação implementada  
 ✔ CRUD completo de todas entidades  
 ✔ Regras de negócio aplicadas  
-✔ Geração de PDF alinhada  
+✔ Geração de PDF 
 ✔ Validação por oficina  
+✔ Deploy em produção
+✔ API REST funcional
 
-Backend considerado **MVP funcional completo**.
+Backend é considerado um **MVP funcional completo**.
 
 ---
 
@@ -208,7 +242,7 @@ O frontend do sistema foi desenvolvido utilizando:
 - React Router
 - Axios
 
-Ele é responsável pela interface visual do sistema, incluindo:
+Responsável pela interface visual do sistema, incluindo:
 
 - Dashboard
 - Gestão de clientes
@@ -222,7 +256,7 @@ https://github.com/thiagoprsilva/carbuapp-frontend
 
 # Integração do Frontend
 
-O backend foi desenvolvido como uma **API REST**, consumida pelo frontend do React.
+O backend foi desenvolvido como  **API REST**, consumida pelo frontend do React.
 HTTP + JSON
 Com autenticação JWT (JSON Web Token)
 Todas as rotas exigem Authorization: Bearer <token>
