@@ -13,8 +13,10 @@
     "generate": "prisma generate",
     "postinstall": "prisma generate",
     "seed": "tsx prisma/seed.ts"
-  
-},
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/thiagoprsilva/carbuapp-backend.git"
@@ -22,7 +24,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/thiagoprsilva/carbuapp-backend/issues"
   },
