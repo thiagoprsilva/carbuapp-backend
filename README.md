@@ -40,8 +40,7 @@ Oficinas automotivas de pequeno porte, especialmente:
 - **Express**
 - **TypeScript**
 - **Prisma ORM**
-- **SQLite (utilizado no desenvolvimento)**
-- **PostgreSQL (produção - versão final)**
+- **PostgreSQL**
 - **JWT (JSON Web Token)**
 - **Docker**
 
@@ -137,6 +136,7 @@ middlewares/
 prisma/
 schema.prisma
 seed.ts
+fix-sequences.ts
 migrations/
 
 Arquitetura baseada em separação de responsabilidades:
@@ -150,6 +150,9 @@ Arquitetura baseada em separação de responsabilidades:
 
 # Como Rodar o Projeto
 
+**Caminho local:** `C:\Users\ThiagoSilva\carbuapp\backend`
+**Caminho na VPS:** `/opt/carbuapp-backend`
+
 ## 1 - Instalar dependências
 npm install
 ## 2 - Rodar servidor
@@ -158,6 +161,13 @@ npm run dev
 http://localhost:3333/health
 ## 4 - Popular banco com dados iniciais
 npm run seed
+
+## 5 - Corrigir sequências do banco (se necessário)
+Rode uma vez após o seed inicial ou sempre que ocorrer o erro `Unique constraint failed on the fields: ('id')`:
+```bash
+npm run fix-sequences
+```
+> Esse erro acontece porque o seed insere IDs explícitos sem avançar a sequência automática do PostgreSQL. O script corrige todas as tabelas.
 
 ---
 
@@ -217,6 +227,8 @@ Backend API (Node.js)
 - PostgreSQL (container)
 - SSL via Let's Encrypt
 - Deploy automático via GitHub Actions
+
+**Caminho na VPS:** `/opt/carbuapp-backend`
 
 # Status Atual do Backend
 

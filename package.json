@@ -13,7 +13,7 @@
     "generate": "prisma generate",
     "postinstall": "prisma generate",
     "seed": "tsx prisma/seed.ts",
-    "fix-sequences": "tsx prisma/fix-sequences.ts"
+    "fix-sequences": "node prisma/fix-sequences.js"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
