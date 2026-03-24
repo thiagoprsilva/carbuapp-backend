@@ -15,7 +15,6 @@ async function main() {
       endereco: "Rua Joaquim das Neves Corticeiro 49",
     },
     create: {
-      id: 1,
       nome: "Commenale Motorsports",
       responsavel: "Felipe Commenale",
       telefone: "11940730035",
@@ -27,20 +26,19 @@ async function main() {
     where: { id: 2 },
     update: {
       nome: "Apocalypse Custom",
-      responsavel: "Betão",
+      responsavel: "Betao",
       telefone: "11949310848",
-      endereco: "Rua Anhaduí Mirim 91",
+      endereco: "Rua Anhadui Mirim 91",
     },
     create: {
-      id: 2,
       nome: "Apocalypse Custom",
-      responsavel: "Betão",
+      responsavel: "Betao",
       telefone: "11949310848",
-      endereco: "Rua Anhaduí Mirim 91",
+      endereco: "Rua Anhadui Mirim 91",
     },
   });
 
-  // ====== USUÁRIOS ADMINS ======
+  // ====== USUARIOS ADMINS ======
 
   const senhaPadrao = "admin123";
   const senhaHash = await bcrypt.hash(senhaPadrao, 10);
@@ -71,14 +69,14 @@ async function main() {
   await prisma.usuario.upsert({
     where: { email: adminApocalypseEmail },
     update: {
-      nome: "Admin (Betão)",
+      nome: "Admin (Betao)",
       senha: senhaHash,
       role: "ADMIN",
       ativo: true,
       oficinaId: apocalypse.id,
     },
     create: {
-      nome: "Admin (Betão)",
+      nome: "Admin (Betao)",
       email: adminApocalypseEmail,
       senha: senhaHash,
       role: "ADMIN",
@@ -87,17 +85,17 @@ async function main() {
     },
   });
 
-  // ====== CLIENTES / VEÍCULOS / ORÇAMENTOS ======
+  // ====== CLIENTES / VEICULOS / ORCAMENTOS ======
 
   const nomesClientes = [
-    "João da Silva",
+    "Joao da Silva",
     "Maria Oliveira",
     "Carlos Souza",
     "Ana Paula",
     "Bruno Santos",
     "Fernanda Lima",
     "Ricardo Alves",
-    "Patrícia Costa",
+    "Patricia Costa",
     "Thiago Pereira",
     "Juliana Rocha",
     "Felipe Moreira",
@@ -119,7 +117,6 @@ async function main() {
         oficinaId: oficinaBase.id,
       },
       create: {
-        id: indiceHumano,
         nome: nomesClientes[i],
         telefone: `1199${(100000 + i).toString().slice(1)}`,
         oficinaId: oficinaBase.id,
@@ -149,19 +146,16 @@ async function main() {
         modelo: modelos[i % modelos.length],
         ano,
         motor: i % 2 === 0 ? "2.0" : "1.6",
-        alimentacao:
-          i % 3 === 0 ? "Gasolina" : i % 3 === 1 ? "Etanol" : "Flex",
+        alimentacao: i % 3 === 0 ? "Gasolina" : i % 3 === 1 ? "Etanol" : "Flex",
         clienteId: cliente.id,
         oficinaId: oficinaBase.id,
       },
       create: {
-        id: indiceHumano,
         placa,
         modelo: modelos[i % modelos.length],
         ano,
         motor: i % 2 === 0 ? "2.0" : "1.6",
-        alimentacao:
-          i % 3 === 0 ? "Gasolina" : i % 3 === 1 ? "Etanol" : "Flex",
+        alimentacao: i % 3 === 0 ? "Gasolina" : i % 3 === 1 ? "Etanol" : "Flex",
         clienteId: cliente.id,
         oficinaId: oficinaBase.id,
       },
@@ -181,7 +175,6 @@ async function main() {
         oficinaId: oficinaBase.id,
       },
       create: {
-        id: indiceHumano,
         numero: numeroOrcamento,
         subtotal,
         total,
@@ -190,13 +183,13 @@ async function main() {
         itens: {
           create: [
             {
-              descricao: "Troca de óleo e filtros",
+              descricao: "Troca de oleo e filtros",
               qtd: 1,
               precoUnit: 400,
               valorLinha: 400,
             },
             {
-              descricao: "Revisão sistema de ignição",
+              descricao: "Revisao sistema de ignicao",
               qtd: 1,
               precoUnit: subtotal - 400,
               valorLinha: subtotal - 400,
@@ -207,11 +200,11 @@ async function main() {
     });
 
     console.log(
-      `Seed registro base: Cliente #${cliente.id} (${cliente.nome}) | Veículo #${veiculo.id} (${veiculo.placa}) | Orçamento #${orcamento.id} (Oficina ${oficinaBase.id})`
+      `Seed registro base: Cliente #${cliente.id} (${cliente.nome}) | Veiculo #${veiculo.id} (${veiculo.placa}) | Orcamento #${orcamento.id} (Oficina ${oficinaBase.id})`
     );
   }
 
-  console.log("Seed concluído!");
+  console.log("Seed concluido!");
   console.log(`Oficinas: 1) ${commenale.nome} | 2) ${apocalypse.nome}`);
   console.log("Admins criados:");
   console.log(`- ${adminCommenaleEmail} / ${senhaPadrao} (Oficina 1)`);

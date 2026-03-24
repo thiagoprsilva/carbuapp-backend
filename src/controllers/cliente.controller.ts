@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { ClienteService } from "../services/cliente.service";
+import { hasManualId, rejectManualIdErrorMessage } from "../utils/rejectManualId";
 
 const clienteService = new ClienteService();
 
@@ -10,17 +11,17 @@ export class ClienteController {
    */
   async create(req: Request, res: Response) {
     try {
-      // Pegamos os dados enviados no body
-      const { nome, telefone } = req.body;
-
-      // Validação mínima (no MVP)
-      if (!nome || typeof nome !== "string") {
-        return res.status(400).json({ message: "Campo 'nome' é obrigatório." });
+      if (hasManualId(req.body)) {
+        return res.status(400).json({ message: rejectManualIdErrorMessage("clientes") });
       }
 
-      // oficinaId vem do token (definido no middleware)
-      const oficinaId = req.user!.oficinaId;
+      const { nome, telefone } = req.body;
 
+      if (!nome || typeof nome !== "string") {
+        return res.status(400).json({ message: "Campo 'nome' e obrigatorio." });
+      }
+
+      const oficinaId = req.user!.oficinaId;
       const cliente = await clienteService.create(oficinaId, { nome, telefone });
 
       return res.status(201).json(cliente);
@@ -31,12 +32,11 @@ export class ClienteController {
 
   /**
    * GET /clientes
-   * Lista clientes da oficina do usuário logado
+   * Lista clientes da oficina do usuario logado
    */
   async list(req: Request, res: Response) {
     try {
       const oficinaId = req.user!.oficinaId;
-
       const clientes = await clienteService.list(oficinaId);
 
       return res.json(clientes);
@@ -45,30 +45,29 @@ export class ClienteController {
     }
   }
 
-
- /**
+  /**
    * PUT /clientes/:id
-   * Atualiza cliente ----- UPDATE
+   * Atualiza cliente
    */
   async update(req: Request, res: Response) {
     try {
-      const oficinaId = req.user!.oficinaId;
+      if (hasManualId(req.body)) {
+        return res.status(400).json({ message: rejectManualIdErrorMessage("clientes") });
+      }
 
-      // id vem na URL (string) -> converter para number
+      const oficinaId = req.user!.oficinaId;
       const clienteId = Number(req.params.id);
 
       if (!clienteId || Number.isNaN(clienteId)) {
-        return res.status(400).json({ message: "ID do cliente inválido." });
+        return res.status(400).json({ message: "ID do cliente invalido." });
       }
 
       const { nome, telefone } = req.body;
 
-      // Pelo menos 1 campo deve ser enviado
       if (nome === undefined && telefone === undefined) {
         return res.status(400).json({ message: "Envie ao menos 'nome' ou 'telefone' para atualizar." });
       }
 
-      // Validações básicas se os campos vierem
       if (nome !== undefined && typeof nome !== "string") {
         return res.status(400).json({ message: "'nome' deve ser string." });
       }
@@ -94,7 +93,7 @@ export class ClienteController {
       const clienteId = Number(req.params.id);
 
       if (!clienteId || Number.isNaN(clienteId)) {
-        return res.status(400).json({ message: "ID do cliente inválido." });
+        return res.status(400).json({ message: "ID do cliente invalido." });
       }
 
       const result = await clienteService.delete(oficinaId, clienteId);
@@ -104,16 +103,16 @@ export class ClienteController {
       return res.status(400).json({ message: error.message });
     }
   }
-  
-  async show(req: Request, res: Response) {
-  try {
-    const oficinaId = req.user!.oficinaId;
-    const id = Number(req.params.id);
 
-    const cliente = await clienteService.findById(oficinaId, id);
-    return res.json(cliente);
-  } catch (error: any) {
-    return res.status(400).json({ message: error.message });
+  async show(req: Request, res: Response) {
+    try {
+      const oficinaId = req.user!.oficinaId;
+      const id = Number(req.params.id);
+
+      const cliente = await clienteService.findById(oficinaId, id);
+      return res.json(cliente);
+    } catch (error: any) {
+      return res.status(400).json({ message: error.message });
+    }
   }
-}
 }

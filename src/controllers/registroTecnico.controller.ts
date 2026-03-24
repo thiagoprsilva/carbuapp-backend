@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { RegistroTecnicoService } from "../services/registroTecnico.service";
+import { hasManualId, rejectManualIdErrorMessage } from "../utils/rejectManualId";
 
 const service = new RegistroTecnicoService();
 
@@ -16,18 +17,21 @@ export class RegistroTecnicoController {
 
   async create(req: Request, res: Response) {
     try {
-      const oficinaId = req.user!.oficinaId;
+      if (hasManualId(req.body)) {
+        return res.status(400).json({ message: rejectManualIdErrorMessage("registros tecnicos") });
+      }
 
+      const oficinaId = req.user!.oficinaId;
       const { veiculoId, categoria, descricao, dataServico, observacoes, orcamentoId } = req.body;
 
       const registro = await service.create(oficinaId, {
-          veiculoId: Number(veiculoId),
-          categoria,
-          descricao,
-          dataServico,
-          observacoes,
-          orcamentoId: orcamentoId !== undefined ? Number(orcamentoId) : undefined,
-});
+        veiculoId: Number(veiculoId),
+        categoria,
+        descricao,
+        dataServico,
+        observacoes,
+        orcamentoId: orcamentoId !== undefined ? Number(orcamentoId) : undefined,
+      });
 
       return res.status(201).json(registro);
     } catch (error: any) {
@@ -37,9 +41,12 @@ export class RegistroTecnicoController {
 
   async update(req: Request, res: Response) {
     try {
+      if (hasManualId(req.body)) {
+        return res.status(400).json({ message: rejectManualIdErrorMessage("registros tecnicos") });
+      }
+
       const oficinaId = req.user!.oficinaId;
       const id = Number(req.params.id);
-
       const { veiculoId, categoria, descricao, dataServico, observacoes } = req.body;
 
       const registro = await service.update(oficinaId, id, {

@@ -1,25 +1,29 @@
 import { Request, Response } from "express";
 import { OrcamentoService } from "../services/orcamento.service";
+import { hasManualId, rejectManualIdErrorMessage } from "../utils/rejectManualId";
 
 const service = new OrcamentoService();
 
 export class OrcamentoController {
   /**
    * POST /orcamentos
-   * Cria orçamento e itens
+   * Cria orcamento e itens
    */
   async create(req: Request, res: Response) {
     try {
+      if (hasManualId(req.body)) {
+        return res.status(400).json({ message: rejectManualIdErrorMessage("orcamentos") });
+      }
+
       const { veiculoId, itens } = req.body;
 
       if (!veiculoId || typeof veiculoId !== "number") {
-        return res.status(400).json({ message: "veiculoId é obrigatório e deve ser número." });
+        return res.status(400).json({ message: "veiculoId e obrigatorio e deve ser numero." });
       }
       if (!Array.isArray(itens) || itens.length === 0) {
-        return res.status(400).json({ message: "itens é obrigatório e deve ter pelo menos 1 item." });
+        return res.status(400).json({ message: "itens e obrigatorio e deve ter pelo menos 1 item." });
       }
 
-      // valida itens de forma simples
       for (const item of itens) {
         if (!item.descricao || typeof item.descricao !== "string") {
           return res.status(400).json({ message: "Cada item precisa de descricao (string)." });
@@ -33,7 +37,6 @@ export class OrcamentoController {
       }
 
       const oficinaId = req.user!.oficinaId;
-
       const orcamento = await service.create(oficinaId, { veiculoId, itens });
 
       return res.status(201).json(orcamento);
@@ -49,28 +52,31 @@ export class OrcamentoController {
   async list(req: Request, res: Response) {
     try {
       const oficinaId = req.user!.oficinaId;
-
       const veiculoIdParam = req.query.veiculoId as string | undefined;
       const veiculoId = veiculoIdParam ? Number(veiculoIdParam) : undefined;
 
       const orcamentos = await service.list(oficinaId, veiculoId);
-
       return res.json(orcamentos);
     } catch (error: any) {
       return res.status(500).json({ message: error.message });
     }
   }
+
   /**
    * PUT /orcamentos/:id
-   * Atualiza orçamento (itens e/ou veiculoId)
+   * Atualiza orcamento (itens e/ou veiculoId)
    */
   async update(req: Request, res: Response) {
     try {
+      if (hasManualId(req.body)) {
+        return res.status(400).json({ message: rejectManualIdErrorMessage("orcamentos") });
+      }
+
       const oficinaId = req.user!.oficinaId;
       const orcamentoId = Number(req.params.id);
 
       if (!orcamentoId || Number.isNaN(orcamentoId)) {
-        return res.status(400).json({ message: "ID do orçamento inválido." });
+        return res.status(400).json({ message: "ID do orcamento invalido." });
       }
 
       const { veiculoId, itens } = req.body;
@@ -117,7 +123,7 @@ export class OrcamentoController {
       const orcamentoId = Number(req.params.id);
 
       if (!orcamentoId || Number.isNaN(orcamentoId)) {
-        return res.status(400).json({ message: "ID do orçamento inválido." });
+        return res.status(400).json({ message: "ID do orcamento invalido." });
       }
 
       const result = await service.delete(oficinaId, orcamentoId);
@@ -127,5 +133,3 @@ export class OrcamentoController {
     }
   }
 }
-
-
