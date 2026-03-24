@@ -204,6 +204,19 @@ async function main() {
     );
   }
 
+  // ====== RESET DE SEQUÊNCIAS ======
+  // Necessário porque o upsert com IDs explícitos não avança a sequência
+  // automática do PostgreSQL. Sem isso, o próximo INSERT falharia com
+  // "Unique constraint failed on the fields: ('id')".
+  await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('"Oficina"', 'id'), COALESCE((SELECT MAX(id) FROM "Oficina"), 0) + 1, false)`;
+  await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('"Usuario"', 'id'), COALESCE((SELECT MAX(id) FROM "Usuario"), 0) + 1, false)`;
+  await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('"Cliente"', 'id'), COALESCE((SELECT MAX(id) FROM "Cliente"), 0) + 1, false)`;
+  await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('"Veiculo"', 'id'), COALESCE((SELECT MAX(id) FROM "Veiculo"), 0) + 1, false)`;
+  await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('"Orcamento"', 'id'), COALESCE((SELECT MAX(id) FROM "Orcamento"), 0) + 1, false)`;
+  await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('"OrcamentoItem"', 'id'), COALESCE((SELECT MAX(id) FROM "OrcamentoItem"), 0) + 1, false)`;
+  await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('"RegistroTecnico"', 'id'), COALESCE((SELECT MAX(id) FROM "RegistroTecnico"), 0) + 1, false)`;
+
+  console.log("Sequencias resetadas com sucesso!");
   console.log("Seed concluido!");
   console.log(`Oficinas: 1) ${commenale.nome} | 2) ${apocalypse.nome}`);
   console.log("Admins criados:");
