@@ -1,3 +1,4 @@
+import "dotenv/config";
 import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
 
@@ -11,14 +12,14 @@ async function main() {
     update: {
       nome: "Commenale Motorsports",
       responsavel: "Felipe Commenale",
-      telefone: "11940730035",
-      endereco: "Rua Joaquim das Neves Corticeiro 49",
+      telefone: "11900000001",
+      endereco: "Endereço não informado",
     },
     create: {
       nome: "Commenale Motorsports",
       responsavel: "Felipe Commenale",
-      telefone: "11940730035",
-      endereco: "Rua Joaquim das Neves Corticeiro 49",
+      telefone: "11900000001",
+      endereco: "Endereço não informado",
     },
   });
 
@@ -27,20 +28,27 @@ async function main() {
     update: {
       nome: "Apocalypse Custom",
       responsavel: "Betao",
-      telefone: "11949310848",
-      endereco: "Rua Anhadui Mirim 91",
+      telefone: "11900000002",
+      endereco: "Endereço não informado",
     },
     create: {
       nome: "Apocalypse Custom",
       responsavel: "Betao",
-      telefone: "11949310848",
-      endereco: "Rua Anhadui Mirim 91",
+      telefone: "11900000002",
+      endereco: "Endereço não informado",
     },
   });
 
   // ====== USUARIOS ADMINS ======
 
-  const senhaPadrao = "admin123";
+  // Lê a senha do ambiente para não expor credenciais no código
+  const senhaPadrao = process.env.SEED_ADMIN_PASSWORD;
+  if (!senhaPadrao) {
+    throw new Error(
+      "Variável SEED_ADMIN_PASSWORD não definida no .env. " +
+      "Defina-a antes de rodar o seed para proteger as credenciais de acesso."
+    );
+  }
   const senhaHash = await bcrypt.hash(senhaPadrao, 10);
 
   const adminCommenaleEmail = "admin@commenale.local";
@@ -220,8 +228,9 @@ async function main() {
   console.log("Seed concluido!");
   console.log(`Oficinas: 1) ${commenale.nome} | 2) ${apocalypse.nome}`);
   console.log("Admins criados:");
-  console.log(`- ${adminCommenaleEmail} / ${senhaPadrao} (Oficina 1)`);
-  console.log(`- ${adminApocalypseEmail} / ${senhaPadrao} (Oficina 2)`);
+  console.log(`- ${adminCommenaleEmail} (Oficina 1)`);
+  console.log(`- ${adminApocalypseEmail} (Oficina 2)`);
+  console.log("Senha: definida via SEED_ADMIN_PASSWORD no .env (não exibida por segurança)");
 }
 
 main()

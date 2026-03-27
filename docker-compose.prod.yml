@@ -4,9 +4,9 @@ services:
     container_name: carbuapp-postgres-prod
     restart: unless-stopped
     environment:
-      POSTGRES_USER: carbuapp
-      POSTGRES_PASSWORD: carbuapp123
-      POSTGRES_DB: carbuapp
+      POSTGRES_USER: ${POSTGRES_USER:-carbuapp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-carbuapp}
     volumes:
       - carbuapp_pgdata:/var/lib/postgresql/data
 

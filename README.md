@@ -150,9 +150,6 @@ Arquitetura baseada em separação de responsabilidades:
 
 # Como Rodar o Projeto
 
-**Caminho local:** `C:\Users\ThiagoSilva\carbuapp\backend`
-**Caminho na VPS:** `/opt/carbuapp-backend`
-
 ## 1 - Instalar dependências
 npm install
 ## 2 - Rodar servidor
@@ -173,30 +170,25 @@ npm run fix-sequences
 
 ## Login padrão (Seed)
 
+Após rodar o seed, utilize as credenciais definidas no arquivo `.env` local (não versionado).
+
+**1. Buscar oficinas disponíveis:**
 
 **GET /public/oficinas**
 
-Depois faz login:
+**2. Fazer login:**
 
 **POST /auth/login**
 
-
-- Body exemplo Commenale:
-
+```json
 {
-  "email": "admin@commenale.local",
-  "senha": "admin123",
-  "oficinaId": 1
+  "email": "<email_do_admin>",
+  "senha": "<senha_definida_no_seed>",
+  "oficinaId": <id_da_oficina>
 }
+```
 
-- Body exemplo Apocalypse:
-
-{
-  "email": "admin@apocalypse.local",
-  "senha": "admin123",
-  "oficinaId": 2
-}
-
+> ⚠️ As credenciais de acesso não são publicadas aqui por segurança. Consulte o responsável pelo projeto ou redefina via seed local.
 
 ---
 
@@ -227,8 +219,6 @@ Backend API (Node.js)
 - PostgreSQL (container)
 - SSL via Let's Encrypt
 - Deploy automático via GitHub Actions
-
-**Caminho na VPS:** `/opt/carbuapp-backend`
 
 # Status Atual do Backend
 
@@ -278,12 +268,8 @@ Todas as rotas exigem Authorization: Bearer <token>
 
 # Informações Acadêmicas
 
-**Aluno:** Thiago Pereira Silva  
-**RA:** 060242  
-**Turma:** GTADSI53B  
-**Curso:** Análise e Desenvolvimento de Sistemas  
-**Instituição:** UNASP  
-
+**Curso:** Análise e Desenvolvimento de Sistemas
+**Instituição:** UNASP
 
 Projeto Integrador – 2026/1
 
