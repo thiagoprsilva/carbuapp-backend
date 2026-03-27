@@ -1,9 +1,12 @@
 import { prisma } from "../prisma";
 
+export const STATUS_VALIDOS = ["Pendente", "Aprovado", "Rejeitado", "Executado"] as const;
+export type OrcamentoStatus = typeof STATUS_VALIDOS[number];
+
 type OrcamentoItemDTO = {
   descricao: string;
   qtd: number;
-  precoUnit?: number; // pode ser opcional no MVP
+  precoUnit?: number;
 };
 
 type OrcamentoCreateDTO = {
@@ -82,11 +85,14 @@ export class OrcamentoService {
 
   /**
    * Lista orçamentos da oficina.
-   * Pode filtrar por veiculoId.
+   * Pode filtrar por veiculoId e/ou status.
    */
-  async list(oficinaId: number, veiculoId?: number) {
+  async list(oficinaId: number, veiculoId?: number, status?: string) {
     const whereClause: any = { oficinaId };
     if (veiculoId) whereClause.veiculoId = veiculoId;
+    if (status && STATUS_VALIDOS.includes(status as OrcamentoStatus)) {
+      whereClause.status = status;
+    }
 
     const orcamentos = await prisma.orcamento.findMany({
       where: whereClause,
@@ -100,9 +106,36 @@ export class OrcamentoService {
         },
       },
     });
-    
 
     return orcamentos;
+  }
+
+  /**
+   * Atualiza apenas o status do orçamento (rota rápida).
+   */
+  async updateStatus(oficinaId: number, orcamentoId: number, status: string) {
+    if (!STATUS_VALIDOS.includes(status as OrcamentoStatus)) {
+      throw new Error(`Status inválido. Valores aceitos: ${STATUS_VALIDOS.join(", ")}.`);
+    }
+
+    const orcamento = await prisma.orcamento.findFirst({
+      where: { id: orcamentoId, oficinaId },
+    });
+
+    if (!orcamento) {
+      throw new Error("Orçamento não encontrado ou não pertence à sua oficina.");
+    }
+
+    const updated = await prisma.orcamento.update({
+      where: { id: orcamentoId },
+      data: { status },
+      include: {
+        itens: true,
+        veiculo: { include: { cliente: true } },
+      },
+    });
+
+    return updated;
   }
 
   /**
@@ -115,7 +148,7 @@ export class OrcamentoService {
   async update(
     oficinaId: number,
     orcamentoId: number,
-    data: { veiculoId?: number; itens?: OrcamentoItemDTO[] }
+    data: { veiculoId?: number; itens?: OrcamentoItemDTO[]; status?: string }
   ) {
     // 1) Confere se o orçamento existe e é da oficina
     const orcamento = await prisma.orcamento.findFirst({
@@ -188,6 +221,7 @@ export class OrcamentoService {
           ...(data.veiculoId !== undefined ? { veiculoId: data.veiculoId } : {}),
           ...(subtotal !== undefined ? { subtotal } : {}),
           ...(total !== undefined ? { total } : {}),
+          ...(data.status !== undefined ? { status: data.status } : {}),
         },
         include: {
           itens: true,

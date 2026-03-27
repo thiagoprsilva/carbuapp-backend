@@ -88,6 +88,7 @@ model RegistroTecnico {
 model Orcamento {
   id        Int      @id @default(autoincrement())
   numero    Int
+  status    String   @default("Pendente")
   subtotal  Float?
   total     Float?
   createdAt DateTime @default(now())

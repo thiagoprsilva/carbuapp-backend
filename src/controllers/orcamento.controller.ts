@@ -47,18 +47,45 @@ export class OrcamentoController {
 
   /**
    * GET /orcamentos
-   * Opcional: /orcamentos?veiculoId=1
+   * Opcional: ?veiculoId=1 e/ou ?status=Pendente
    */
   async list(req: Request, res: Response) {
     try {
       const oficinaId = req.user!.oficinaId;
       const veiculoIdParam = req.query.veiculoId as string | undefined;
       const veiculoId = veiculoIdParam ? Number(veiculoIdParam) : undefined;
+      const status = req.query.status as string | undefined;
 
-      const orcamentos = await service.list(oficinaId, veiculoId);
+      const orcamentos = await service.list(oficinaId, veiculoId, status);
       return res.json(orcamentos);
     } catch (error: any) {
       return res.status(500).json({ message: error.message });
+    }
+  }
+
+  /**
+   * PATCH /orcamentos/:id/status
+   * Troca rápida de status sem precisar reenviar itens.
+   */
+  async updateStatus(req: Request, res: Response) {
+    try {
+      const oficinaId = req.user!.oficinaId;
+      const orcamentoId = Number(req.params.id);
+
+      if (!orcamentoId || Number.isNaN(orcamentoId)) {
+        return res.status(400).json({ message: "ID do orçamento inválido." });
+      }
+
+      const { status } = req.body;
+
+      if (!status || typeof status !== "string") {
+        return res.status(400).json({ message: "Envie { status: string } no body." });
+      }
+
+      const updated = await service.updateStatus(oficinaId, orcamentoId, status);
+      return res.json(updated);
+    } catch (error: any) {
+      return res.status(400).json({ message: error.message });
     }
   }
 
