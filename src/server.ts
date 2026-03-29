@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+
 import { clienteRoutes } from "./routes/cliente.routes";
 import { veiculoRoutes } from "./routes/veiculo.routes";
 import { registroTecnicoRoutes } from "./routes/registroTecnico.routes";
@@ -9,7 +10,7 @@ import { publicRoutes } from "./routes/public.routes";
 import dashboardRoutes from "./routes/dashboard.routes";
 import { searchRoutes } from "./routes/search.routes";
 
-// Importa as rotas de autenticação
+// Rotas de autenticação
 import { authRoutes } from "./routes/auth.routes";
 
 // Carrega variáveis do .env
@@ -17,17 +18,32 @@ dotenv.config();
 
 const app = express();
 
+/**
+ * IMPORTANTE:
+ * Necessário para funcionar corretamente com Nginx (proxy reverso)
+ * Permite capturar IP real do cliente (rate limit, logs, etc)
+ */
+app.set("trust proxy", 1);
+
+/**
+ * Lista de origens permitidas (CORS)
+ */
 const allowedOrigins = [
   "https://carbuapp.com.br",
   "https://www.carbuapp.com.br",
   "http://localhost:5173"
 ];
 
-// Permite requisições apenas das origens autorizadas
+/**
+ * Configuração de CORS segura
+ */
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Permite requisições sem origin (ex: curl, health checks)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
@@ -37,10 +53,14 @@ app.use(
   })
 );
 
-// Permite trabalhar com JSON no body
+/**
+ * Permite trabalhar com JSON no body
+ */
 app.use(express.json());
 
-// ROTAS ---
+/**
+ * ROTAS
+ */
 app.use("/auth", authRoutes);
 app.use("/clientes", clienteRoutes);
 app.use("/veiculos", veiculoRoutes);
@@ -50,15 +70,21 @@ app.use("/public", publicRoutes);
 app.use("/dashboard", dashboardRoutes);
 app.use("/api", searchRoutes);
 
-// Rota simples para testar se servidor está rodando
+/**
+ * Rota de health check
+ */
 app.get("/health", (req, res) => {
   res.json({ status: "ok", app: "CarbuApp Backend" });
 });
 
-// Porta do servidor
+/**
+ * Porta do servidor
+ */
 const PORT = Number(process.env.PORT) || 3333;
 
-// Sobe o servidor
+/**
+ * Inicializa servidor
+ */
 app.listen(PORT, () => {
-  console.log(`CarbuApp rodando em http://localhost:${PORT}`);
+  console.log(`🚀 CarbuApp rodando em http://localhost:${PORT}`);
 });
