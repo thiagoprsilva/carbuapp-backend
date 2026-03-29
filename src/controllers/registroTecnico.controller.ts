@@ -8,7 +8,9 @@ export class RegistroTecnicoController {
   async list(req: Request, res: Response) {
     try {
       const oficinaId = req.user!.oficinaId;
-      const registros = await service.list(oficinaId);
+      const veiculoId = req.query.veiculoId ? Number(req.query.veiculoId) : undefined;
+      const limit = req.query.limit ? Number(req.query.limit) : undefined;
+      const registros = await service.list(oficinaId, veiculoId, limit);
       return res.json(registros);
     } catch (error: any) {
       return res.status(400).json({ message: error.message });

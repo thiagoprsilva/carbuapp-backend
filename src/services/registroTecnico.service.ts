@@ -20,9 +20,12 @@ export class RegistroTecnicoService {
   /**
    * Lista registros da oficina logada
    */
-  async list(oficinaId: number) {
+  async list(oficinaId: number, veiculoId?: number, limit?: number) {
     return prisma.registroTecnico.findMany({
-      where: { oficinaId },
+      where: {
+        oficinaId,
+        ...(veiculoId ? { veiculoId } : {}),
+      },
       include: {
         veiculo: {
           include: {
@@ -30,7 +33,8 @@ export class RegistroTecnicoService {
           },
         },
       },
-      orderBy: { dataServico: "desc" }, // mais recente primeiro
+      orderBy: { dataServico: "desc" },
+      ...(limit ? { take: limit } : {}),
     });
   }
 
