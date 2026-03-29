@@ -1,25 +1,36 @@
 import { Router } from "express";
 import { AuthController } from "../controllers/auth.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
-
+import rateLimit from "express-rate-limit";
 
 // Cria roteador do Express
 const router = Router();
 
-
 // Instancia controller
 const authController = new AuthController();
 
+// Rate limit para login
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 10, // máximo de 10 tentativas por IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error: "Muitas tentativas de login. Tente novamente em alguns minutos."
+  }
+});
+
 /**
  * POST /auth/login
- * Essa rota chama o método login do controller
  */
-router.post("/login", (req, res) => authController.login(req, res));
-
+router.post("/login", loginLimiter, (req, res) =>
+  authController.login(req, res)
+);
 
 // Rota protegida: só acessa se token for válido
-router.get("/me", authMiddleware, (req, res) => authController.me(req, res));
+router.get("/me", authMiddleware, (req, res) =>
+  authController.me(req, res)
+);
 
-
-// Exporta rota para ser usada no server
+// Exporta rota
 export { router as authRoutes };
