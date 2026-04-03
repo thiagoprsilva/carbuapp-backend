@@ -27,10 +27,14 @@ router.post("/login", loginLimiter, (req, res) =>
   authController.login(req, res)
 );
 
-// Rota protegida: só acessa se token for válido
+// Retorna dados do usuário autenticado
 router.get("/me", authMiddleware, (req, res) =>
   authController.me(req, res)
 );
 
-// Exporta rota
+// Alterar a própria senha (qualquer role autenticado)
+router.patch("/senha", authMiddleware, (req, res) =>
+  authController.alterarSenha(req, res)
+);
+
 export { router as authRoutes };

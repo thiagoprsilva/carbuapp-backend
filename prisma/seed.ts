@@ -39,6 +39,33 @@ async function main() {
     },
   });
 
+  // ====== SUPERADMIN GLOBAL ======
+  // Usuário global sem vínculo com oficina (officinaId = null)
+  // Senha inicial: CarbuAdmin@2026! — deve ser alterada após o primeiro acesso
+  const superadminEmail = "superadmin@carbuapp.com.br";
+  const superadminSenha = await bcrypt.hash("CarbuAdmin@2026!", 12);
+
+  await prisma.usuario.upsert({
+    where: { email: superadminEmail },
+    update: {
+      nome: "Super Admin",
+      senha: superadminSenha,
+      role: "SUPERADMIN",
+      ativo: true,
+      oficinaId: null,
+    },
+    create: {
+      nome: "Super Admin",
+      email: superadminEmail,
+      senha: superadminSenha,
+      role: "SUPERADMIN",
+      ativo: true,
+      oficinaId: null,
+    },
+  });
+
+  console.log(`Superadmin criado: ${superadminEmail} (sem oficina vinculada)`);
+
   // ====== USUARIOS ADMINS ======
 
   // Lê a senha do ambiente para não expor credenciais no código

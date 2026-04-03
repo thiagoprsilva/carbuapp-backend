@@ -6,7 +6,8 @@ declare namespace Express {
     user?: {
       id: number;
       role: string;
-      oficinaId: number;
+      // null para o superadmin global (sem vínculo com oficina)
+      oficinaId: number | null;
     };
   }
 }

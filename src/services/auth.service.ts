@@ -1,63 +1,68 @@
-// Importa o Prisma para acessar o banco
 import { prisma } from "../prisma";
-
-// Importa bcrypt para comparar senha criptografada
 import bcrypt from "bcrypt";
-
-// Importa jwt para gerar o token
 import jwt from "jsonwebtoken";
 
 export class AuthService {
   /**
-   * Método responsável por autenticar o usuário
-   * Recebe email, senha e oficinaId (multi-oficina)
-   * Retorna token + dados do usuário + dados básicos da oficina
+   * Login unificado:
+   * - Com officinaId  → usuário normal (admin / mecânico)
+   * - Sem officinaId  → tenta login como SUPERADMIN
    */
-  async login(email: string, senha: string, oficinaId: number) {
-    // Busca o usuário pelo email + oficinaId (e ativo)
-    // Isso garante que o mesmo email (se existir em outra oficina) não conflita
-    const user = await prisma.usuario.findFirst({
-      where: {
-        email,
-        oficinaId,
-        ativo: true,
-      },
-      include: {
-        oficina: true, // traz dados da oficina (útil no front)
-      },
-    });
+  async login(email: string, senha: string, oficinaId?: number) {
+    let user: any;
 
-    // Se não existir usuário, lança erro
-    if (!user) {
-      throw new Error("Usuário não encontrado para esta oficina");
+    if (oficinaId !== undefined && oficinaId !== null) {
+      // Fluxo normal: busca dentro da oficina informada
+      user = await prisma.usuario.findFirst({
+        where: { email, oficinaId, ativo: true },
+        include: { oficina: true },
+      });
+
+      if (!user) {
+        throw new Error("Usuário não encontrado para esta oficina");
+      }
+    } else {
+      // Fluxo superadmin: busca por email, sem filtro de oficina
+      user = await prisma.usuario.findFirst({
+        where: { email, role: "SUPERADMIN", ativo: true },
+      });
+
+      if (!user) {
+        throw new Error("Credenciais inválidas");
+      }
     }
 
-    // Compara senha digitada com a senha criptografada do banco
     const senhaValida = await bcrypt.compare(senha, user.senha);
-
-    // Se senha não bater, erro
     if (!senhaValida) {
       throw new Error("Senha inválida");
     }
 
-    /**
-     * Geração do JWT
-     * Payload contém apenas dados necessários
-     * Nunca colocamos senha no token
-     */
     const token = jwt.sign(
       {
         id: user.id,
         role: user.role,
-        oficinaId: user.oficinaId,
+        oficinaId: user.oficinaId ?? null,
       },
-      process.env.JWT_SECRET as string, // segredo usado para assinar
-      {
-        expiresIn: "1d", // token expira em 1 dia
-      }
+      process.env.JWT_SECRET as string,
+      { expiresIn: "1d" }
     );
 
-    // Retorna token + dados básicos do usuário + oficina
+    // Superadmin não tem oficina vinculada
+    if (user.role === "SUPERADMIN") {
+      return {
+        token,
+        user: {
+          id: user.id,
+          nome: user.nome,
+          email: user.email,
+          role: user.role,
+          oficinaId: null,
+        },
+        oficina: null,
+      };
+    }
+
+    // Admin / Mecânico
     return {
       token,
       user: {
@@ -71,13 +76,13 @@ export class AuthService {
         id: user.oficina.id,
         nome: user.oficina.nome,
         responsavel: user.oficina.responsavel,
+        logoUrl: user.oficina.logoUrl ?? null,
       },
     };
   }
 
   /**
-   * Retorna dados do usuário autenticado.
-   * Recebe o "id" já vindo do token (req.user)
+   * Retorna dados do usuário autenticado (GET /auth/me)
    */
   async me(userId: number) {
     const user = await prisma.usuario.findUnique({
@@ -89,6 +94,14 @@ export class AuthService {
         role: true,
         oficinaId: true,
         ativo: true,
+        oficina: {
+          select: {
+            id: true,
+            nome: true,
+            responsavel: true,
+            logoUrl: true,
+          },
+        },
       },
     });
 
@@ -97,5 +110,22 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  /**
+   * Altera a própria senha (qualquer role)
+   */
+  async alterarSenha(userId: number, senhaAtual: string, novaSenha: string) {
+    const user = await prisma.usuario.findUnique({ where: { id: userId } });
+    if (!user) throw new Error("Usuário não encontrado");
+
+    const senhaValida = await bcrypt.compare(senhaAtual, user.senha);
+    if (!senhaValida) throw new Error("Senha atual incorreta");
+
+    const novoHash = await bcrypt.hash(novaSenha, 12);
+    await prisma.usuario.update({
+      where: { id: userId },
+      data: { senha: novoHash },
+    });
   }
 }

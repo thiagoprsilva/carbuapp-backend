@@ -1,4 +1,6 @@
 import PDFDocument from "pdfkit";
+import path from "path";
+import fs from "fs";
 import { prisma } from "../prisma";
 
 /**
@@ -37,13 +39,45 @@ export class OrcamentoPdfService {
     });
 
     // 3) Montagem do PDF
-    doc.fontSize(18).text(`ORÇAMENTO Nº ${orcamento.numero}`, { align: "center" });
-    doc.moveDown();
 
-    doc.fontSize(12).text(`Oficina: ${orcamento.oficina.nome}`);
-    doc.text(`Responsável: ${orcamento.oficina.responsavel}`);
-    doc.text(`Telefone: ${orcamento.oficina.telefone}`);
-    doc.text(`Endereço: ${orcamento.oficina.endereco}`);
+    // ── Cabeçalho com logo (se existir) ──────────────────────────────────────
+    if (orcamento.oficina.logoUrl) {
+      const logoPath = path.resolve("uploads", orcamento.oficina.logoUrl);
+      if (fs.existsSync(logoPath)) {
+        doc.image(logoPath, 40, 40, { width: 80 });
+        // Texto da oficina ao lado do logo (coluna direita)
+        doc.fontSize(14).font("Helvetica-Bold")
+          .text(orcamento.oficina.nome, 135, 42, { width: 375 });
+        doc.fontSize(10).font("Helvetica")
+          .text(`Responsável: ${orcamento.oficina.responsavel}`, 135, doc.y, { width: 375 })
+          .text(`Tel: ${orcamento.oficina.telefone}`, 135, doc.y, { width: 375 })
+          .text(`Endereço: ${orcamento.oficina.endereco}`, 135, doc.y, { width: 375 });
+        doc.y = Math.max(doc.y, 130); // garante que não sobreponha o logo
+      } else {
+        // Logo cadastrada mas arquivo não encontrado — usa layout textual
+        doc.fontSize(14).font("Helvetica-Bold").text(orcamento.oficina.nome, { align: "left" });
+        doc.fontSize(10).font("Helvetica");
+        doc.text(`Responsável: ${orcamento.oficina.responsavel}`);
+        doc.text(`Tel: ${orcamento.oficina.telefone}`);
+        doc.text(`Endereço: ${orcamento.oficina.endereco}`);
+      }
+    } else {
+      // Sem logo — layout textual original
+      doc.fontSize(14).font("Helvetica-Bold").text(orcamento.oficina.nome, { align: "left" });
+      doc.fontSize(10).font("Helvetica");
+      doc.text(`Responsável: ${orcamento.oficina.responsavel}`);
+      doc.text(`Tel: ${orcamento.oficina.telefone}`);
+      doc.text(`Endereço: ${orcamento.oficina.endereco}`);
+    }
+
+    doc.moveDown();
+    doc.moveTo(40, doc.y).lineTo(550, doc.y).strokeColor("#cccccc").stroke();
+    doc.strokeColor("#000000");
+    doc.moveDown(0.5);
+
+    doc.fontSize(18).font("Helvetica-Bold")
+      .text(`ORÇAMENTO Nº ${orcamento.numero}`, { align: "center" });
+    doc.font("Helvetica");
     doc.moveDown();
 
     doc.text(`Cliente: ${orcamento.veiculo.cliente.nome}`);

@@ -1,66 +1,65 @@
-// Tipos do Express
 import { Request, Response } from "express";
-
-// Importa a regra de negócio
 import { AuthService } from "../services/auth.service";
 
-// Instancia o serviço
 const authService = new AuthService();
 
 export class AuthController {
-
   /**
    * POST /auth/login
-   * Agora exige email, senha e oficinaId
+   * officinaId é opcional → sem ele tenta login como SUPERADMIN
    */
   async login(req: Request, res: Response) {
     try {
-
-      // Pega dados do body
       const { email, senha, oficinaId } = req.body;
 
-      // Validação básica
-      if (!email || !senha || !oficinaId) {
-        return res.status(400).json({
-          message: "email, senha e oficinaId são obrigatórios.",
-        });
+      if (!email || !senha) {
+        return res.status(400).json({ message: "email e senha são obrigatórios." });
       }
 
-      if (typeof oficinaId !== "number") {
-        return res.status(400).json({
-          message: "oficinaId deve ser number.",
-        });
+      if (oficinaId !== undefined && typeof oficinaId !== "number") {
+        return res.status(400).json({ message: "oficinaId deve ser number." });
       }
 
-      // Chama o serviço passando também a oficina
       const result = await authService.login(email, senha, oficinaId);
-
       return res.json(result);
-
     } catch (error: any) {
-      return res.status(400).json({
-        message: error.message,
-      });
+      return res.status(400).json({ message: error.message });
     }
   }
 
   /**
    * GET /auth/me
-   * Rota protegida: depende do middleware preencher req.user
    */
   async me(req: Request, res: Response) {
     try {
-      if (!req.user) {
-        return res.status(401).json({ message: "Não autenticado" });
-      }
-
+      if (!req.user) return res.status(401).json({ message: "Não autenticado" });
       const user = await authService.me(req.user.id);
       return res.json(user);
-
     } catch (error: any) {
-      return res.status(400).json({
-        message: error.message,
-      });
+      return res.status(400).json({ message: error.message });
+    }
+  }
+
+  /**
+   * PATCH /auth/senha
+   * Qualquer usuário autenticado pode alterar a própria senha
+   */
+  async alterarSenha(req: Request, res: Response) {
+    try {
+      if (!req.user) return res.status(401).json({ message: "Não autenticado" });
+
+      const { senhaAtual, novaSenha } = req.body;
+      if (!senhaAtual || !novaSenha) {
+        return res.status(400).json({ message: "senhaAtual e novaSenha são obrigatórios." });
+      }
+      if (novaSenha.length < 6) {
+        return res.status(400).json({ message: "Nova senha deve ter pelo menos 6 caracteres." });
+      }
+
+      await authService.alterarSenha(req.user.id, senhaAtual, novaSenha);
+      return res.json({ message: "Senha alterada com sucesso." });
+    } catch (error: any) {
+      return res.status(400).json({ message: error.message });
     }
   }
 }

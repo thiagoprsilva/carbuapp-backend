@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
 
 import { clienteRoutes } from "./routes/cliente.routes";
 import { veiculoRoutes } from "./routes/veiculo.routes";
@@ -9,14 +10,20 @@ import { orcamentoRoutes } from "./routes/orcamento.routes";
 import { publicRoutes } from "./routes/public.routes";
 import dashboardRoutes from "./routes/dashboard.routes";
 import { searchRoutes } from "./routes/search.routes";
-
-// Rotas de autenticação
 import { authRoutes } from "./routes/auth.routes";
+import { oficinaRoutes } from "./routes/oficina.routes";
+import { usuarioRoutes } from "./routes/usuario.routes";
 
 // Carrega variáveis do .env
 dotenv.config();
 
 const app = express();
+
+/**
+ * Serve arquivos de upload (logos das oficinas) de forma pública
+ * Ex: GET /uploads/logos/oficina-1.png
+ */
+app.use("/uploads", express.static(path.resolve("uploads")));
 
 /**
  * IMPORTANTE:
@@ -69,6 +76,8 @@ app.use("/orcamento", orcamentoRoutes);
 app.use("/public", publicRoutes);
 app.use("/dashboard", dashboardRoutes);
 app.use("/api", searchRoutes);
+app.use("/oficinas", oficinaRoutes);
+app.use("/usuarios", usuarioRoutes);
 
 /**
  * Rota de health check

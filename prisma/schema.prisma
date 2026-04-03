@@ -13,6 +13,7 @@ model Oficina {
   responsavel String
   telefone    String
   endereco    String
+  logoUrl     String?   // caminho relativo: "logos/oficina-1.png"
   createdAt   DateTime  @default(now())
 
   usuarios    Usuario[]
@@ -27,12 +28,13 @@ model Usuario {
   nome       String
   email      String   @unique
   senha      String
-  role       String
+  role       String   // "superadmin" | "admin" | "mecanico"
   ativo      Boolean  @default(true)
   createdAt  DateTime @default(now())
 
-  oficinaId  Int
-  oficina    Oficina  @relation(fields: [oficinaId], references: [id])
+  // null apenas para o superadmin global (sem vínculo com oficina)
+  oficinaId  Int?
+  oficina    Oficina? @relation(fields: [oficinaId], references: [id])
 }
 
 model Cliente {
