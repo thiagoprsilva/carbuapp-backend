@@ -1,17 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-/**
- * Middleware de autenticação:
- * - Lê o header Authorization (Bearer TOKEN)
- * - Valida o token usando JWT_SECRET
- * - Extrai o payload e coloca em req.user
- * - Se token inválido -> bloqueia com 401
- */
 export function authMiddleware(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
 
-  // Precisa existir e estar no formato: "Bearer <token>"
   if (!authHeader) {
     return res.status(401).json({ message: "Token não informado" });
   }
@@ -23,17 +15,25 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
   }
 
   try {
-    // Valida assinatura e expiração
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as any;
 
-    // Colocamos os dados essenciais do usuário logado na req
+    let oficinaId = decoded.oficinaId ?? null;
+
+    // Superadmin pode operar dentro de uma oficina específica via header
+    // Isso permite que ele acesse clientes, veículos, etc. de qualquer oficina
+    if (decoded.role === "SUPERADMIN") {
+      const xOficinaId = req.headers["x-oficina-id"];
+      if (xOficinaId && !isNaN(Number(xOficinaId))) {
+        oficinaId = Number(xOficinaId);
+      }
+    }
+
     req.user = {
       id: decoded.id,
       role: decoded.role,
-      oficinaId: decoded.oficinaId,
+      oficinaId,
     };
 
-    // Continua para a próxima função/rota
     return next();
   } catch (err) {
     return res.status(401).json({ message: "Token inválido ou expirado" });
