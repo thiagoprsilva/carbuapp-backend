@@ -20,6 +20,8 @@ services:
       - "3333:3333"
     env_file:
       - .env
+    volumes:
+      - /opt/carbuapp-backend/uploads:/app/uploads
 
 volumes:
   carbuapp_pgdata:
