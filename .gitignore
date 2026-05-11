@@ -144,3 +144,6 @@ vite.config.ts.timestamp-*
 dev.db
 prisma/dev.db
 .vscode
+
+# documentos locais
+ROADMAP.md

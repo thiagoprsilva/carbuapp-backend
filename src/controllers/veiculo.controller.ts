@@ -130,6 +130,20 @@ export class VeiculoController {
     }
   }
 
+  async timeline(req: Request, res: Response) {
+    try {
+      const oficinaId = req.user!.oficinaId;
+      const id = Number(req.params.id);
+      if (!id || Number.isNaN(id)) {
+        return res.status(400).json({ message: "ID inválido." });
+      }
+      const eventos = await veiculoService.getTimeline(oficinaId, id);
+      return res.json(eventos);
+    } catch (error: any) {
+      return res.status(400).json({ message: error.message });
+    }
+  }
+
   async show(req: Request, res: Response) {
     try {
       const oficinaId = req.user!.oficinaId;

@@ -105,10 +105,14 @@ model Orcamento {
 
   @@unique([oficinaId, numero])
 
-
   // lista de registros gerados a partir dele
   registrosTecnicos RegistroTecnico[]
 
+  // laudo de entrada (opcional, 1-para-1)
+  laudo     LaudoEntrada?
+
+  // fotos anexadas
+  fotos     Foto[]
 }
 
 model OrcamentoItem {
@@ -120,4 +124,42 @@ model OrcamentoItem {
 
   orcamentoId  Int
   orcamento    Orcamento @relation(fields: [orcamentoId], references: [id])
+}
+
+// ─── Laudo de entrada ───────────────────────────────────────────────────────
+
+model LaudoEntrada {
+  id           Int          @id @default(autoincrement())
+  km           Int?
+  nivelCombust String?      // "1/4" | "1/2" | "3/4" | "cheio"
+  observacoes  String?
+  criadoEm     DateTime     @default(now())
+
+  orcamentoId  Int          @unique
+  orcamento    Orcamento    @relation(fields: [orcamentoId], references: [id])
+
+  avarias      AvariaItem[]
+}
+
+model AvariaItem {
+  id         Int          @id @default(autoincrement())
+  zona       String       // "capo" | "porta_diant_e" | "teto" | etc.
+  severidade String?      // "leve" | "moderado" | "grave"
+  observacao String?
+
+  laudoId    Int
+  laudo      LaudoEntrada @relation(fields: [laudoId], references: [id], onDelete: Cascade)
+}
+
+// ─── Upload de fotos na OS ──────────────────────────────────────────────────
+
+model Foto {
+  id         Int       @id @default(autoincrement())
+  url        String
+  descricao  String?
+  zona       String?
+  criadoEm  DateTime  @default(now())
+
+  orcamentoId Int
+  orcamento   Orcamento @relation(fields: [orcamentoId], references: [id])
 }

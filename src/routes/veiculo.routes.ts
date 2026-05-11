@@ -15,7 +15,8 @@ router.post("/", (req, res) => veiculoController.create(req, res));
 router.get("/", (req, res) => veiculoController.list(req, res));
 
 
-router.get("/:id", authMiddleware, (req, res) => veiculoController.show(req, res));
+router.get("/:id/timeline", (req, res) => veiculoController.timeline(req, res));
+router.get("/:id", (req, res) => veiculoController.show(req, res));
 
 // PUT /veiculos (atualiza/update)
 router.put("/:id", (req, res) => veiculoController.update(req, res));

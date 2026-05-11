@@ -159,6 +159,48 @@ async delete(oficinaId: number, veiculoId: number) {
   return { message: "Veículo removido com sucesso." };
 }
 
+async getTimeline(oficinaId: number, veiculoId: number) {
+  const veiculo = await prisma.veiculo.findFirst({
+    where: { id: veiculoId, oficinaId },
+  });
+  if (!veiculo) throw new Error("Veículo não encontrado.");
+
+  const [registros, orcamentos] = await Promise.all([
+    prisma.registroTecnico.findMany({
+      where: { veiculoId, oficinaId },
+      orderBy: { dataServico: "desc" },
+    }),
+    prisma.orcamento.findMany({
+      where: { veiculoId, oficinaId },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
+
+  type Evento =
+    | { tipo: "registro"; data: Date; id: number; categoria: string; descricao: string; observacoes: string | null }
+    | { tipo: "orcamento"; data: Date; id: number; numero: number; total: any };
+
+  const eventos: Evento[] = [
+    ...registros.map((r) => ({
+      tipo: "registro" as const,
+      data: r.dataServico,
+      id: r.id,
+      categoria: r.categoria,
+      descricao: r.descricao,
+      observacoes: r.observacoes,
+    })),
+    ...orcamentos.map((o) => ({
+      tipo: "orcamento" as const,
+      data: o.createdAt,
+      id: o.id,
+      numero: o.numero,
+      total: o.total,
+    })),
+  ].sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
+
+  return eventos;
+}
+
 async findById(oficinaId: number, veiculoId: number) {
   const veiculo = await prisma.veiculo.findFirst({
     where: { id: veiculoId, oficinaId },
