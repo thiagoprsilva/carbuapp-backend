@@ -18,24 +18,24 @@ export type LaudoCreateDTO = {
 
 export class LaudoService {
   /**
-   * Cria ou sobrescreve o laudo de entrada de um orçamento.
-   * Regra: um orçamento pode ter no máximo 1 laudo.
-   * A cada chamada substitui o laudo existente (delete + create) — imutabilidade controlada.
+   * Cria ou sobrescreve o laudo de entrada de uma OS.
+   * Um OS pode ter no máximo 1 laudo.
+   * Cada chamada substitui o laudo existente (delete + create).
    */
-  async upsert(oficinaId: number, orcamentoId: number, data: LaudoCreateDTO) {
-    // 1) Valida que o orçamento pertence à oficina
-    const orcamento = await prisma.orcamento.findFirst({
-      where: { id: orcamentoId, oficinaId },
+  async upsert(oficinaId: number, registroTecnicoId: number, data: LaudoCreateDTO) {
+    // Valida que a OS pertence à oficina
+    const os = await prisma.registroTecnico.findFirst({
+      where: { id: registroTecnicoId, oficinaId },
     });
-    if (!orcamento) throw new Error("Orçamento não encontrado ou não pertence à sua oficina.");
+    if (!os) throw new Error("Ordem de Serviço não encontrada ou não pertence à sua oficina.");
 
-    // 2) Remove laudo anterior se existir (cascata apaga as avarias)
-    await prisma.laudoEntrada.deleteMany({ where: { orcamentoId } });
+    // Remove laudo anterior se existir (cascata apaga as avarias)
+    await prisma.laudoEntrada.deleteMany({ where: { registroTecnicoId } });
 
-    // 3) Cria novo laudo
+    // Cria novo laudo
     const laudo = await prisma.laudoEntrada.create({
       data: {
-        orcamentoId,
+        registroTecnicoId,
         km: data.km ?? null,
         nivelCombust: data.nivelCombust ?? null,
         observacoes: data.observacoes ?? null,
@@ -54,16 +54,16 @@ export class LaudoService {
   }
 
   /**
-   * Retorna o laudo de um orçamento (ou null se não tiver).
+   * Retorna o laudo de uma OS (ou null se não tiver).
    */
-  async get(oficinaId: number, orcamentoId: number) {
-    const orcamento = await prisma.orcamento.findFirst({
-      where: { id: orcamentoId, oficinaId },
+  async get(oficinaId: number, registroTecnicoId: number) {
+    const os = await prisma.registroTecnico.findFirst({
+      where: { id: registroTecnicoId, oficinaId },
     });
-    if (!orcamento) throw new Error("Orçamento não encontrado.");
+    if (!os) throw new Error("Ordem de Serviço não encontrada.");
 
     const laudo = await prisma.laudoEntrada.findUnique({
-      where: { orcamentoId },
+      where: { registroTecnicoId },
       include: { avarias: true },
     });
 
@@ -71,15 +71,15 @@ export class LaudoService {
   }
 
   /**
-   * Remove o laudo de um orçamento.
+   * Remove o laudo de uma OS.
    */
-  async delete(oficinaId: number, orcamentoId: number) {
-    const orcamento = await prisma.orcamento.findFirst({
-      where: { id: orcamentoId, oficinaId },
+  async delete(oficinaId: number, registroTecnicoId: number) {
+    const os = await prisma.registroTecnico.findFirst({
+      where: { id: registroTecnicoId, oficinaId },
     });
-    if (!orcamento) throw new Error("Orçamento não encontrado.");
+    if (!os) throw new Error("Ordem de Serviço não encontrada.");
 
-    await prisma.laudoEntrada.deleteMany({ where: { orcamentoId } });
+    await prisma.laudoEntrada.deleteMany({ where: { registroTecnicoId } });
     return { message: "Laudo removido." };
   }
 }

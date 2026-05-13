@@ -68,8 +68,12 @@ model Veiculo {
   orcamentos  Orcamento[]
 }
 
+// ─── Ordem de Serviço (OS central) ──────────────────────────────────────────
 model RegistroTecnico {
   id          Int      @id @default(autoincrement())
+  numero      Int
+  status      String   @default("Aberta")
+  // Valores: "Aberta" | "Em andamento" | "Aguardando peças" | "Concluída" | "Cancelada"
   categoria   String
   descricao   String
   dataServico DateTime
@@ -82,15 +86,20 @@ model RegistroTecnico {
   oficina     Oficina  @relation(fields: [oficinaId], references: [id])
   oficinaId   Int
 
-// vinculo opcional com orçamento
-  orcamentoId Int?
-  orcamento Orcamento? @relation(fields: [orcamentoId], references: [id])
-  
+  // filhos da OS
+  laudo       LaudoEntrada?
+  fotos       Foto[]
+  orcamentos  Orcamento[]
+
+  @@unique([oficinaId, numero])
 }
+
+// ─── Orçamento (sempre filho de uma OS) ─────────────────────────────────────
 model Orcamento {
   id        Int      @id @default(autoincrement())
   numero    Int
   status    String   @default("Pendente")
+  // Valores: "Pendente" | "Aprovado" | "Rejeitado" | "Executado"
   subtotal  Float?
   total     Float?
   createdAt DateTime @default(now())
@@ -101,18 +110,12 @@ model Orcamento {
   oficinaId Int
   oficina   Oficina  @relation(fields: [oficinaId], references: [id])
 
+  registroTecnicoId Int
+  registroTecnico   RegistroTecnico @relation(fields: [registroTecnicoId], references: [id])
+
   itens     OrcamentoItem[]
 
   @@unique([oficinaId, numero])
-
-  // lista de registros gerados a partir dele
-  registrosTecnicos RegistroTecnico[]
-
-  // laudo de entrada (opcional, 1-para-1)
-  laudo     LaudoEntrada?
-
-  // fotos anexadas
-  fotos     Foto[]
 }
 
 model OrcamentoItem {
@@ -126,19 +129,18 @@ model OrcamentoItem {
   orcamento    Orcamento @relation(fields: [orcamentoId], references: [id])
 }
 
-// ─── Laudo de entrada ───────────────────────────────────────────────────────
-
+// ─── Laudo de entrada (pertence à OS, não ao orçamento) ─────────────────────
 model LaudoEntrada {
-  id           Int          @id @default(autoincrement())
-  km           Int?
-  nivelCombust String?      // "1/4" | "1/2" | "3/4" | "cheio"
-  observacoes  String?
-  criadoEm     DateTime     @default(now())
+  id                Int             @id @default(autoincrement())
+  km                Int?
+  nivelCombust      String?         // "1/4" | "1/2" | "3/4" | "cheio"
+  observacoes       String?
+  criadoEm          DateTime        @default(now())
 
-  orcamentoId  Int          @unique
-  orcamento    Orcamento    @relation(fields: [orcamentoId], references: [id])
+  registroTecnicoId Int             @unique
+  registroTecnico   RegistroTecnico @relation(fields: [registroTecnicoId], references: [id])
 
-  avarias      AvariaItem[]
+  avarias           AvariaItem[]
 }
 
 model AvariaItem {
@@ -151,15 +153,14 @@ model AvariaItem {
   laudo      LaudoEntrada @relation(fields: [laudoId], references: [id], onDelete: Cascade)
 }
 
-// ─── Upload de fotos na OS ──────────────────────────────────────────────────
-
+// ─── Fotos (pertencem à OS, não ao orçamento) ────────────────────────────────
 model Foto {
-  id         Int       @id @default(autoincrement())
-  url        String
-  descricao  String?
-  zona       String?
-  criadoEm  DateTime  @default(now())
+  id                Int             @id @default(autoincrement())
+  url               String
+  descricao         String?
+  zona              String?
+  criadoEm          DateTime        @default(now())
 
-  orcamentoId Int
-  orcamento   Orcamento @relation(fields: [orcamentoId], references: [id])
+  registroTecnicoId Int
+  registroTecnico   RegistroTecnico @relation(fields: [registroTecnicoId], references: [id])
 }

@@ -5,21 +5,21 @@ const service = new LaudoService();
 
 export class LaudoController {
   /**
-   * POST /orcamento/:id/laudo
-   * Cria ou substitui o laudo de entrada de um orçamento.
+   * POST /registroTecnico/:id/laudo
+   * Cria ou substitui o laudo de entrada de uma OS.
    */
   async upsert(req: Request, res: Response) {
     try {
       const oficinaId = req.user!.oficinaId;
-      const orcamentoId = Number(req.params.id);
+      const registroTecnicoId = Number(req.params.id);
 
-      if (!orcamentoId || Number.isNaN(orcamentoId)) {
-        return res.status(400).json({ message: "ID do orçamento inválido." });
+      if (!registroTecnicoId || Number.isNaN(registroTecnicoId)) {
+        return res.status(400).json({ message: "ID da OS inválido." });
       }
 
       const { km, nivelCombust, observacoes, avarias } = req.body;
 
-      const laudo = await service.upsert(oficinaId, orcamentoId, {
+      const laudo = await service.upsert(oficinaId, registroTecnicoId, {
         km: km !== undefined ? Number(km) : undefined,
         nivelCombust,
         observacoes,
@@ -33,19 +33,19 @@ export class LaudoController {
   }
 
   /**
-   * GET /orcamento/:id/laudo
+   * GET /registroTecnico/:id/laudo
    * Retorna o laudo (ou 404 se não existir).
    */
   async get(req: Request, res: Response) {
     try {
       const oficinaId = req.user!.oficinaId;
-      const orcamentoId = Number(req.params.id);
+      const registroTecnicoId = Number(req.params.id);
 
-      if (!orcamentoId || Number.isNaN(orcamentoId)) {
-        return res.status(400).json({ message: "ID do orçamento inválido." });
+      if (!registroTecnicoId || Number.isNaN(registroTecnicoId)) {
+        return res.status(400).json({ message: "ID da OS inválido." });
       }
 
-      const laudo = await service.get(oficinaId, orcamentoId);
+      const laudo = await service.get(oficinaId, registroTecnicoId);
 
       if (!laudo) {
         return res.status(404).json({ message: "Laudo não encontrado." });
@@ -58,18 +58,18 @@ export class LaudoController {
   }
 
   /**
-   * DELETE /orcamento/:id/laudo
+   * DELETE /registroTecnico/:id/laudo
    */
   async delete(req: Request, res: Response) {
     try {
       const oficinaId = req.user!.oficinaId;
-      const orcamentoId = Number(req.params.id);
+      const registroTecnicoId = Number(req.params.id);
 
-      if (!orcamentoId || Number.isNaN(orcamentoId)) {
-        return res.status(400).json({ message: "ID do orçamento inválido." });
+      if (!registroTecnicoId || Number.isNaN(registroTecnicoId)) {
+        return res.status(400).json({ message: "ID da OS inválido." });
       }
 
-      const result = await service.delete(oficinaId, orcamentoId);
+      const result = await service.delete(oficinaId, registroTecnicoId);
       return res.json(result);
     } catch (error: any) {
       return res.status(400).json({ message: error.message });

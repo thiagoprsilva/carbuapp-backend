@@ -22,7 +22,7 @@ export class DashboardService {
             cliente: { select: { id: true, nome: true } },
           },
         },
-        orcamento: { select: { id: true, numero: true } },
+        // orcamento removido — OS agora tem lista de orcamentos (relação inversa)
       },
     });
 

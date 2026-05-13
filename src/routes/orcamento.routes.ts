@@ -2,15 +2,10 @@ import { Router } from "express";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { OrcamentoController } from "../controllers/orcamento.controller";
 import { OrcamentoPdfController } from "../controllers/orcamentoPdf.controller";
-import { LaudoController } from "../controllers/laudo.controller";
-import { FotoController } from "../controllers/foto.controller";
-import { upload } from "../config/multer";
 
 const router = Router();
 const controller = new OrcamentoController();
 const pdfController = new OrcamentoPdfController();
-const laudoController = new LaudoController();
-const fotoController = new FotoController();
 
 router.use(authMiddleware);
 
@@ -21,14 +16,6 @@ router.patch("/:id/status", (req, res) => controller.updateStatus(req, res));
 router.put("/:id", (req, res) => controller.update(req, res));
 router.delete("/:id", (req, res) => controller.delete(req, res));
 
-// Laudo de entrada
-router.post("/:id/laudo", (req, res) => laudoController.upsert(req, res));
-router.get("/:id/laudo", (req, res) => laudoController.get(req, res));
-router.delete("/:id/laudo", (req, res) => laudoController.delete(req, res));
-
-// Fotos
-router.post("/:id/fotos", upload.single("foto"), (req, res) => fotoController.upload(req, res));
-router.get("/:id/fotos", (req, res) => fotoController.list(req, res));
-router.delete("/:id/fotos/:fotoId", (req, res) => fotoController.delete(req, res));
+// Laudo e Fotos agora ficam em /registroTecnico/:id/laudo e /registroTecnico/:id/fotos
 
 export { router as orcamentoRoutes };

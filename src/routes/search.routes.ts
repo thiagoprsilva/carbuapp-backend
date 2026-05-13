@@ -120,9 +120,7 @@ router.get("/search", authMiddleware, async (req, res) => {
               cliente: { select: { id: true, nome: true } },
             },
           },
-          orcamento: {
-            select: { id: true, numero: true },
-          },
+          // orcamento removido — agora é lista (orcamentos[]) via registroTecnico
         },
       }),
     ]);
@@ -172,7 +170,7 @@ router.get("/search", authMiddleware, async (req, res) => {
         subtitle: r.veiculo
           ? `${r.veiculo.modelo} (${r.veiculo.placa}) - ${r.veiculo.cliente?.nome ?? ""}`
           : "",
-        href: `/registroTecnico/${r.id}`,
+        href: `/registros/${r.id}`,
       })),
     ];
 

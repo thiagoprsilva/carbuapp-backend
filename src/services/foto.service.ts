@@ -5,19 +5,19 @@ import path from "path";
 export class FotoService {
   async upload(
     oficinaId: number,
-    orcamentoId: number,
+    registroTecnicoId: number,
     fileRelativePath: string,
     descricao?: string,
     zona?: string
   ) {
-    const orcamento = await prisma.orcamento.findFirst({
-      where: { id: orcamentoId, oficinaId },
+    const os = await prisma.registroTecnico.findFirst({
+      where: { id: registroTecnicoId, oficinaId },
     });
-    if (!orcamento) throw new Error("Orçamento não encontrado ou não pertence à sua oficina.");
+    if (!os) throw new Error("Ordem de Serviço não encontrada ou não pertence à sua oficina.");
 
     const foto = await prisma.foto.create({
       data: {
-        orcamentoId,
+        registroTecnicoId,
         url: fileRelativePath,
         descricao: descricao ?? null,
         zona: zona ?? null,
@@ -27,26 +27,26 @@ export class FotoService {
     return foto;
   }
 
-  async list(oficinaId: number, orcamentoId: number) {
-    const orcamento = await prisma.orcamento.findFirst({
-      where: { id: orcamentoId, oficinaId },
+  async list(oficinaId: number, registroTecnicoId: number) {
+    const os = await prisma.registroTecnico.findFirst({
+      where: { id: registroTecnicoId, oficinaId },
     });
-    if (!orcamento) throw new Error("Orçamento não encontrado.");
+    if (!os) throw new Error("Ordem de Serviço não encontrada.");
 
     return prisma.foto.findMany({
-      where: { orcamentoId },
+      where: { registroTecnicoId },
       orderBy: { criadoEm: "desc" },
     });
   }
 
-  async delete(oficinaId: number, orcamentoId: number, fotoId: number) {
-    const orcamento = await prisma.orcamento.findFirst({
-      where: { id: orcamentoId, oficinaId },
+  async delete(oficinaId: number, registroTecnicoId: number, fotoId: number) {
+    const os = await prisma.registroTecnico.findFirst({
+      where: { id: registroTecnicoId, oficinaId },
     });
-    if (!orcamento) throw new Error("Orçamento não encontrado.");
+    if (!os) throw new Error("Ordem de Serviço não encontrada.");
 
     const foto = await prisma.foto.findFirst({
-      where: { id: fotoId, orcamentoId },
+      where: { id: fotoId, registroTecnicoId },
     });
     if (!foto) throw new Error("Foto não encontrada.");
 

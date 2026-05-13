@@ -15,13 +15,13 @@ export class OrcamentoController {
         return res.status(400).json({ message: rejectManualIdErrorMessage("orcamentos") });
       }
 
-      const { veiculoId, itens } = req.body;
+      const { registroTecnicoId, itens } = req.body;
 
-      if (!veiculoId || typeof veiculoId !== "number") {
-        return res.status(400).json({ message: "veiculoId e obrigatorio e deve ser numero." });
+      if (!registroTecnicoId || typeof registroTecnicoId !== "number") {
+        return res.status(400).json({ message: "registroTecnicoId é obrigatório e deve ser número." });
       }
       if (!Array.isArray(itens) || itens.length === 0) {
-        return res.status(400).json({ message: "itens e obrigatorio e deve ter pelo menos 1 item." });
+        return res.status(400).json({ message: "itens é obrigatório e deve ter pelo menos 1 item." });
       }
 
       for (const item of itens) {
@@ -37,7 +37,7 @@ export class OrcamentoController {
       }
 
       const oficinaId = req.user!.oficinaId;
-      const orcamento = await service.create(oficinaId, { veiculoId, itens });
+      const orcamento = await service.create(oficinaId, { registroTecnicoId, itens });
 
       return res.status(201).json(orcamento);
     } catch (error: any) {
@@ -55,8 +55,10 @@ export class OrcamentoController {
       const veiculoIdParam = req.query.veiculoId as string | undefined;
       const veiculoId = veiculoIdParam ? Number(veiculoIdParam) : undefined;
       const status = req.query.status as string | undefined;
+      const registroTecnicoIdParam = req.query.registroTecnicoId as string | undefined;
+      const registroTecnicoId = registroTecnicoIdParam ? Number(registroTecnicoIdParam) : undefined;
 
-      const orcamentos = await service.list(oficinaId, veiculoId, status);
+      const orcamentos = await service.list(oficinaId, veiculoId, status, registroTecnicoId);
       return res.json(orcamentos);
     } catch (error: any) {
       return res.status(500).json({ message: error.message });

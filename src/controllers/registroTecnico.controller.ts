@@ -17,25 +17,39 @@ export class RegistroTecnicoController {
     }
   }
 
+  async getById(req: Request, res: Response) {
+    try {
+      const oficinaId = req.user!.oficinaId;
+      const id = Number(req.params.id);
+      if (!id || Number.isNaN(id)) {
+        return res.status(400).json({ message: "ID inválido." });
+      }
+      const os = await service.getById(oficinaId, id);
+      return res.json(os);
+    } catch (error: any) {
+      return res.status(404).json({ message: error.message });
+    }
+  }
+
   async create(req: Request, res: Response) {
     try {
       if (hasManualId(req.body)) {
-        return res.status(400).json({ message: rejectManualIdErrorMessage("registros tecnicos") });
+        return res.status(400).json({ message: rejectManualIdErrorMessage("ordens de servico") });
       }
 
       const oficinaId = req.user!.oficinaId;
-      const { veiculoId, categoria, descricao, dataServico, observacoes, orcamentoId } = req.body;
+      const { veiculoId, categoria, descricao, dataServico, observacoes, laudo } = req.body;
 
-      const registro = await service.create(oficinaId, {
+      const os = await service.create(oficinaId, {
         veiculoId: Number(veiculoId),
         categoria,
         descricao,
         dataServico,
         observacoes,
-        orcamentoId: orcamentoId !== undefined ? Number(orcamentoId) : undefined,
+        laudo: laudo ?? undefined,
       });
 
-      return res.status(201).json(registro);
+      return res.status(201).json(os);
     } catch (error: any) {
       return res.status(400).json({ message: error.message });
     }
@@ -44,22 +58,38 @@ export class RegistroTecnicoController {
   async update(req: Request, res: Response) {
     try {
       if (hasManualId(req.body)) {
-        return res.status(400).json({ message: rejectManualIdErrorMessage("registros tecnicos") });
+        return res.status(400).json({ message: rejectManualIdErrorMessage("ordens de servico") });
       }
 
       const oficinaId = req.user!.oficinaId;
       const id = Number(req.params.id);
-      const { veiculoId, categoria, descricao, dataServico, observacoes } = req.body;
+      const { categoria, descricao, dataServico, observacoes } = req.body;
 
-      const registro = await service.update(oficinaId, id, {
-        veiculoId: veiculoId !== undefined ? Number(veiculoId) : undefined,
+      const os = await service.update(oficinaId, id, {
         categoria,
         descricao,
         dataServico,
         observacoes,
       });
 
-      return res.json(registro);
+      return res.json(os);
+    } catch (error: any) {
+      return res.status(400).json({ message: error.message });
+    }
+  }
+
+  async updateStatus(req: Request, res: Response) {
+    try {
+      const oficinaId = req.user!.oficinaId;
+      const id = Number(req.params.id);
+      const { status } = req.body;
+
+      if (!status) {
+        return res.status(400).json({ message: "status é obrigatório." });
+      }
+
+      const os = await service.updateStatus(oficinaId, id, status);
+      return res.json(os);
     } catch (error: any) {
       return res.status(400).json({ message: error.message });
     }
@@ -69,7 +99,6 @@ export class RegistroTecnicoController {
     try {
       const oficinaId = req.user!.oficinaId;
       const id = Number(req.params.id);
-
       const result = await service.remove(oficinaId, id);
       return res.json(result);
     } catch (error: any) {

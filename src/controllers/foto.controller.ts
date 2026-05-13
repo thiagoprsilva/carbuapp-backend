@@ -6,8 +6,7 @@ const service = new FotoService();
 
 export class FotoController {
   /**
-   * POST /orcamento/:id/fotos
-   * Upload de uma foto para o orçamento.
+   * POST /registroTecnico/:id/fotos
    */
   async upload(req: Request, res: Response) {
     try {
@@ -16,17 +15,22 @@ export class FotoController {
       }
 
       const oficinaId = req.user!.oficinaId;
-      const orcamentoId = Number(req.params.id);
+      const registroTecnicoId = Number(req.params.id);
 
-      if (!orcamentoId || Number.isNaN(orcamentoId)) {
-        return res.status(400).json({ message: "ID do orçamento inválido." });
+      if (!registroTecnicoId || Number.isNaN(registroTecnicoId)) {
+        return res.status(400).json({ message: "ID da OS inválido." });
       }
 
-      // Caminho relativo salvo no banco (ex: "fotos/foto-1234567890.jpg")
       const relativePath = path.join("fotos", req.file.filename);
       const { descricao, zona } = req.body;
 
-      const foto = await service.upload(oficinaId, orcamentoId, relativePath, descricao, zona);
+      const foto = await service.upload(
+        oficinaId,
+        registroTecnicoId,
+        relativePath,
+        descricao,
+        zona
+      );
       return res.status(201).json(foto);
     } catch (error: any) {
       return res.status(400).json({ message: error.message });
@@ -34,18 +38,18 @@ export class FotoController {
   }
 
   /**
-   * GET /orcamento/:id/fotos
+   * GET /registroTecnico/:id/fotos
    */
   async list(req: Request, res: Response) {
     try {
       const oficinaId = req.user!.oficinaId;
-      const orcamentoId = Number(req.params.id);
+      const registroTecnicoId = Number(req.params.id);
 
-      if (!orcamentoId || Number.isNaN(orcamentoId)) {
-        return res.status(400).json({ message: "ID do orçamento inválido." });
+      if (!registroTecnicoId || Number.isNaN(registroTecnicoId)) {
+        return res.status(400).json({ message: "ID da OS inválido." });
       }
 
-      const fotos = await service.list(oficinaId, orcamentoId);
+      const fotos = await service.list(oficinaId, registroTecnicoId);
       return res.json(fotos);
     } catch (error: any) {
       return res.status(400).json({ message: error.message });
@@ -53,15 +57,15 @@ export class FotoController {
   }
 
   /**
-   * DELETE /orcamento/:id/fotos/:fotoId
+   * DELETE /registroTecnico/:id/fotos/:fotoId
    */
   async delete(req: Request, res: Response) {
     try {
       const oficinaId = req.user!.oficinaId;
-      const orcamentoId = Number(req.params.id);
+      const registroTecnicoId = Number(req.params.id);
       const fotoId = Number(req.params.fotoId);
 
-      const result = await service.delete(oficinaId, orcamentoId, fotoId);
+      const result = await service.delete(oficinaId, registroTecnicoId, fotoId);
       return res.json(result);
     } catch (error: any) {
       return res.status(400).json({ message: error.message });
