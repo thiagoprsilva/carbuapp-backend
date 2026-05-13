@@ -229,12 +229,17 @@ async function main() {
         subtotal,
         total,
         registroTecnicoId: os.id,
+        veiculoId: veiculo.id,
+        oficinaId: oficinaBase.id,
       },
       create: {
         numero: indiceHumano,
         subtotal,
         total,
-        registroTecnicoId: os.id,
+        // usa connect para não conflitar com nested write de itens
+        registroTecnico: { connect: { id: os.id } },
+        veiculo:         { connect: { id: veiculo.id } },
+        oficina:         { connect: { id: oficinaBase.id } },
         itens: {
           create: [
             {
