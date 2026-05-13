@@ -196,25 +196,45 @@ async function main() {
       },
     });
 
-    const numeroOrcamento = indiceHumano;
+    // Cria a OS (RegistroTecnico) pai do orçamento
+    const os = await prisma.registroTecnico.upsert({
+      where: { id: indiceHumano },
+      update: {
+        numero: indiceHumano,
+        status: "Concluída",
+        categoria: "Revisão",
+        descricao: "Revisão geral de manutenção",
+        dataServico: new Date(`202${Math.floor(i / 10) + 3}-0${(i % 12) + 1}-15`),
+        veiculoId: veiculo.id,
+        oficinaId: oficinaBase.id,
+      },
+      create: {
+        numero: indiceHumano,
+        status: "Concluída",
+        categoria: "Revisão",
+        descricao: "Revisão geral de manutenção",
+        dataServico: new Date(`202${Math.floor(i / 10) + 3}-0${(i % 12) + 1}-15`),
+        veiculoId: veiculo.id,
+        oficinaId: oficinaBase.id,
+      },
+    });
+
     const subtotal = 1500 + i * 50;
     const total = subtotal;
 
     const orcamento = await prisma.orcamento.upsert({
       where: { id: indiceHumano },
       update: {
-        numero: numeroOrcamento,
+        numero: indiceHumano,
         subtotal,
         total,
-        veiculoId: veiculo.id,
-        oficinaId: oficinaBase.id,
+        registroTecnicoId: os.id,
       },
       create: {
-        numero: numeroOrcamento,
+        numero: indiceHumano,
         subtotal,
         total,
-        veiculoId: veiculo.id,
-        oficinaId: oficinaBase.id,
+        registroTecnicoId: os.id,
         itens: {
           create: [
             {
@@ -235,7 +255,7 @@ async function main() {
     });
 
     console.log(
-      `Seed registro base: Cliente #${cliente.id} (${cliente.nome}) | Veiculo #${veiculo.id} (${veiculo.placa}) | Orcamento #${orcamento.id} (Oficina ${oficinaBase.id})`
+      `Seed: Cliente #${cliente.id} (${cliente.nome}) | Veiculo #${veiculo.id} | OS #${os.id} | Orcamento #${orcamento.id} (Oficina ${oficinaBase.id})`
     );
   }
 
