@@ -76,6 +76,28 @@ export class OrcamentoService {
   }
 
   /**
+   * Retorna um orçamento pelo ID.
+   */
+  async getById(oficinaId: number, orcamentoId: number) {
+    const orcamento = await prisma.orcamento.findFirst({
+      where: { id: orcamentoId, oficinaId },
+      include: {
+        itens: true,
+        veiculo: {
+          include: {
+            cliente: { select: { id: true, nome: true, telefone: true } },
+          },
+        },
+        registroTecnico: { select: { id: true, numero: true, status: true } },
+      },
+    });
+    if (!orcamento) {
+      throw new Error("Orçamento não encontrado ou não pertence à sua oficina.");
+    }
+    return orcamento;
+  }
+
+  /**
    * Lista orçamentos da oficina.
    * Pode filtrar por veiculoId, registroTecnicoId e/ou status.
    */

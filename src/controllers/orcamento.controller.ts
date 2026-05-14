@@ -46,6 +46,26 @@ export class OrcamentoController {
   }
 
   /**
+   * GET /orcamentos/:id
+   * Retorna um orçamento pelo ID.
+   */
+  async getById(req: Request, res: Response) {
+    try {
+      const oficinaId = req.user!.oficinaId;
+      const orcamentoId = Number(req.params.id);
+
+      if (!orcamentoId || Number.isNaN(orcamentoId)) {
+        return res.status(400).json({ message: "ID do orçamento inválido." });
+      }
+
+      const orcamento = await service.getById(oficinaId, orcamentoId);
+      return res.json(orcamento);
+    } catch (error: any) {
+      return res.status(404).json({ message: error.message });
+    }
+  }
+
+  /**
    * GET /orcamentos
    * Opcional: ?veiculoId=1 e/ou ?status=Pendente
    */
