@@ -13,6 +13,7 @@ import { searchRoutes } from "./routes/search.routes";
 import { authRoutes } from "./routes/auth.routes";
 import { oficinaRoutes } from "./routes/oficina.routes";
 import { usuarioRoutes } from "./routes/usuario.routes";
+import { templateRoutes } from "./routes/template.routes";
 
 // Carrega variáveis do .env
 dotenv.config();
@@ -78,6 +79,7 @@ app.use("/dashboard", dashboardRoutes);
 app.use("/api", searchRoutes);
 app.use("/oficinas", oficinaRoutes);
 app.use("/usuarios", usuarioRoutes);
+app.use("/templates", templateRoutes);
 
 /**
  * Rota de health check

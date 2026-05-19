@@ -21,7 +21,9 @@ model Oficina {
   veiculos    Veiculo[]
   registros   RegistroTecnico[]
   orcamentos  Orcamento[]
+  templates   TemplateServico[]
 }
+
 
 model Usuario {
   id         Int      @id @default(autoincrement())
@@ -151,6 +153,28 @@ model AvariaItem {
 
   laudoId    Int
   laudo      LaudoEntrada @relation(fields: [laudoId], references: [id], onDelete: Cascade)
+}
+
+// ─── Templates de serviços (modelos reutilizáveis por oficina) ──────────────
+model TemplateServico {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  createdAt DateTime @default(now())
+
+  oficinaId Int
+  oficina   Oficina @relation(fields: [oficinaId], references: [id])
+
+  itens     TemplateServicoItem[]
+}
+
+model TemplateServicoItem {
+  id        Int    @id @default(autoincrement())
+  descricao String
+  qtd       Int    @default(1)
+  precoUnit Float  @default(0)
+
+  templateId Int
+  template   TemplateServico @relation(fields: [templateId], references: [id], onDelete: Cascade)
 }
 
 // ─── Fotos (pertencem à OS, não ao orçamento) ────────────────────────────────
