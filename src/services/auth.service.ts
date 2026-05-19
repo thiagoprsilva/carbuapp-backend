@@ -4,32 +4,19 @@ import jwt from "jsonwebtoken";
 
 export class AuthService {
   /**
-   * Login unificado:
-   * - Com officinaId  → usuário normal (admin / mecânico)
-   * - Sem officinaId  → tenta login como SUPERADMIN
+   * Login unificado por email + senha.
+   * Email é único no banco — o backend identifica automaticamente
+   * a oficina do usuário (admin/mecânico) ou reconhece o superadmin.
    */
-  async login(email: string, senha: string, oficinaId?: number) {
-    let user: any;
+  async login(email: string, senha: string) {
+    // Busca o usuário apenas pelo email (único globalmente no schema)
+    const user = await prisma.usuario.findFirst({
+      where: { email, ativo: true },
+      include: { oficina: true },
+    });
 
-    if (oficinaId !== undefined && oficinaId !== null) {
-      // Fluxo normal: busca dentro da oficina informada
-      user = await prisma.usuario.findFirst({
-        where: { email, oficinaId, ativo: true },
-        include: { oficina: true },
-      });
-
-      if (!user) {
-        throw new Error("Usuário não encontrado para esta oficina");
-      }
-    } else {
-      // Fluxo superadmin: busca por email, sem filtro de oficina
-      user = await prisma.usuario.findFirst({
-        where: { email, role: "SUPERADMIN", ativo: true },
-      });
-
-      if (!user) {
-        throw new Error("Credenciais inválidas");
-      }
+    if (!user) {
+      throw new Error("Credenciais inválidas");
     }
 
     const senhaValida = await bcrypt.compare(senha, user.senha);
